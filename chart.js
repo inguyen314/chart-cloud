@@ -1561,9 +1561,9 @@ function updateCdaLinks(office, basin, cwms_ts_id, cda) {
         // Create a URL object to easily manipulate the query parameters
         let url = new URL(currentHref, window.location.origin);
 
-        // Check if "index.html" exists in the path and prepend "district_templates/chart/"
+        // Check if "index.html" exists in the path and prepend "apps/chart/"
         if (url.pathname.endsWith('index.html')) {
-            url.pathname = 'district_templates/chart' + url.pathname;
+            url.pathname = 'apps/chart' + url.pathname;
         }
 
         // Create or update the search parameters

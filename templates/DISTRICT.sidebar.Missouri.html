@@ -1,0 +1,119 @@
+							<link rel="stylesheet" href="../../../css/sidebar.css"/>
+							<div id="leftPane" class="col-md-3 backend-cp-fixed" style="width: 22em;">
+								<div class="box-usace">
+									<h2 class="box-header-striped">
+										<span class="title">Missouri</span>
+										<span class="rss"></span>
+									</h2>
+									<div id="ContentPane" class="box-content">
+										<div id="dnn_ctr2497_ModuleContent" class="DNNModuleContent ModAccordionMenuC">
+											<div id="dnn_ctr2497_View_AccordionContainer" class="AccordionContainer">
+												<div class="ac-jump-menu-wrapper ac-hide ac-show-mobile-only">
+													<div class="ac-jump-menu-success alert alert-success">
+														<i class="fas fa-spinner fa-spin"></i>Redirecting...
+													</div>
+													<select class="ac-jump-menu" id="mobilejumpmenu">
+														<option data-new-window="False" value="">Select...</option>
+														<option data-new-window="False" value="/reports">My Reports</option>
+                                                        <option data-new-window="False" value="/gages">My Gages</option>
+													</select>
+												</div>
+												<ul class="acAccordionMenuPlotMacros acResponsive ac-hide ac-hide-mobile-only ">
+													<li class="usaceAccordionMenuListItem">
+														<div class="usaceAccordionRootNode">
+															<div class="lvl0 listItem">
+																<a href="index.html?basin=Missouri&office=MVS&cwms_ts_id=Boonville-Missouri.Stage.Inst.15Minutes.0.lrgsShef-rev" target="_self" tabindex="0">
+																	Boonville-Missouri - Stage</a>
+															</div>
+														</div>
+													</li>
+													<li class="usaceAccordionMenuListItem">
+														<div class="usaceAccordionRootNode">
+															<div class="lvl0 listItem">
+																<a href="index.html?basin=Missouri&office=MVS&cwms_ts_id=Boonville-Missouri.Flow.Inst.15Minutes.0.RatingUSGS" target="_self" tabindex="0">
+																	Boonville-Missouri - Flow</a>
+															</div>
+														</div>
+													</li>
+													<li class="usaceAccordionMenuListItem">
+														<div class="usaceAccordionRootNode">
+															<div class="lvl0 listItem">
+																<a href="index.html?basin=Missouri&office=MVS&cwms_ts_id=Jefferson City-Missouri.Stage.Inst.15Minutes.0.lrgsShef-rev" target="_self" tabindex="0">
+																	Jefferson City-Missouri - Stage</a>
+															</div>
+														</div>
+													</li>
+													<li class="usaceAccordionMenuListItem">
+														<div class="usaceAccordionRootNode">
+															<div class="lvl0 listItem">
+																<a href="index.html?basin=Missouri&office=MVS&cwms_ts_id=Hermann-Missouri.Stage.Inst.15Minutes.0.lrgsShef-rev" target="_self" tabindex="0">
+																	Hermann-Missouri - Stage</a>
+															</div>
+														</div>
+													</li>
+													<li class="usaceAccordionMenuListItem">
+														<div class="usaceAccordionRootNode">
+															<div class="lvl0 listItem">
+																<a href="index.html?basin=Missouri&office=MVS&cwms_ts_id=Hermann-Missouri.Flow.Inst.15Minutes.0.RatingUSGS&cwms_ts_id_2=Hermann-Missouri.Flow.Inst.15Minutes.0.RatingNWS" target="_self" tabindex="0">
+																	Hermann-Missouri - Flow</a>
+															</div>
+														</div>
+													</li>
+													<li class="usaceAccordionMenuListItem">
+														<div class="usaceAccordionRootNode">
+															<div class="lvl0 listItem">
+																<a href="index.html?basin=Missouri&office=MVS&cwms_ts_id=Washington-Missouri.Stage.Inst.15Minutes.0.lrgsShef-rev" target="_self" tabindex="0">
+																	Washington-Missouri - Stage</a>
+															</div>
+														</div>
+													</li>
+													<li class="usaceAccordionMenuListItem">
+														<div class="usaceAccordionRootNode">
+															<div class="lvl0 listItem">
+																<a href="index.html?basin=Missouri&office=MVS&cwms_ts_id=Washington-Missouri.Flow.Inst.15Minutes.0.RatingUSGS" target="_self" tabindex="0">
+																	Washington-Missouri - Flow</a>
+															</div>
+														</div>
+													</li>
+													<li class="usaceAccordionMenuListItem">
+														<div class="usaceAccordionRootNode">
+															<div class="lvl0 listItem">
+																<a href="index.html?basin=Missouri&office=MVS&cwms_ts_id=St Charles-Missouri.Stage.Inst.30Minutes.0.lrgsShef-rev" target="_self" tabindex="0">
+																	St Charles-Missouri - Stage</a>
+															</div>
+														</div>
+													</li>
+													<li class="usaceAccordionMenuListItem">
+														<div class="usaceAccordionRootNode">
+															<div class="lvl0 listItem">
+																<a href="index.html?basin=Missouri&office=MVS&cwms_ts_id=St Charles-Missouri.Flow.Inst.30Minutes.0.RatingUSGS&cwms_ts_id_2=St Charles-Missouri.Flow.Inst.30Minutes.0.RatingNWS" target="_self" tabindex="0">
+																	St Charles-Missouri - Flow</a>
+															</div>
+														</div>
+													</li>
+													<li class="usaceAccordionMenuListItem">
+														<div class="usaceAccordionRootNode">
+															<div class="lvl0 listItem">
+																<a href="index.html?basin=Missouri&office=MVS&cwms_ts_id=St Charles-Missouri.Flow.Inst.30Minutes.0.RatingUSGS&cwms_ts_id_2=Hermann-Missouri.Flow.Inst.15Minutes.0.RatingUSGS&cwms_ts_id_3=Washington-Missouri.Flow.Inst.15Minutes.0.RatingUSGS&cwms_ts_id_4=Boonville-Missouri.Flow.Inst.15Minutes.0.RatingUSGS" target="_self" tabindex="0">
+																	Missouri Flows</a>
+															</div>
+														</div>
+													</li>
+													
+													
+												</ul>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<script defer>
+								const mobilejumpmenu=document.getElementById("mobilejumpmenu");
+								mobilejumpmenu.addEventListener("change", function(){
+									let url=this.value
+									window.location=url
+								});
+							</script>
+							<script>
+								updateCdaLinks(office, basin, cwms_ts_id, cda);
+							</script>
