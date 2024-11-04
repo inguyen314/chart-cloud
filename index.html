@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart JS Cloud</title>
+    <meta name="Description" content="U.S. Army Corps of Engineers St. Louis District Home Page" />
+    <link rel="stylesheet" href="css/body.css" />
+    <link rel="stylesheet" href="css/breadcrumbs.css" />
+    <link rel="stylesheet" href="css/jumpMenu.css" />
+    <link rel="stylesheet" href="css/sidebar.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script type="text/javascript" src="js/main.js"></script>
+    <!-- Add sidebar.css IF NOT LOAD SIDEBAR TEMPLATE -->
+    <link rel="stylesheet" href="css/sidebar.css" />
+    <!-- Include Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <!-- Include the Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include the Moment.js adapter for Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0"></script>
+</head>
+
+<body>
+    <div id="page-container">
+        <header id="header">
+            <!--Header content populated here by JavaScript Tag at end of body -->
+        </header>
+        <div class="page-wrap">
+            <div class="container-fluid">
+                <div id="breadcrumbs">
+                </div>
+                <div class="page-content">
+                    <sidebar id="sidebar"></sidebar>
+                    <div id="topPane" class="col-md backend-cp-collapsible">
+                        <div class="box-usace">
+                            <h2 class="box-header-striped">
+                                <span class="titleLabel title"></span>
+                                <span class="rss"></span>
+                            </h2>
+                            <div class="box-content" style="background-color:white;margin:auto">
+                                <div class="content">
+                                    <!-- Set Switch Menu Links -->
+                                    <script>
+                                        // Extract URL parameters
+                                        const urlParams = new URLSearchParams(window.location.search);
+
+                                        var basin = urlParams.get('basin');
+                                        var cda = urlParams.get('cda');
+                                        var lookback = urlParams.get('lookback') || '4';
+                                        var cwms_ts_id = urlParams.get('cwms_ts_id') || 'St Louis-Mississippi.Stage.Inst.30Minutes.0.lrgsShef-rev';
+                                        var cwms_ts_id_2 = urlParams.get('cwms_ts_id_2');
+                                        var cwms_ts_id_3 = urlParams.get('cwms_ts_id_3');
+                                        var cwms_ts_id_4 = urlParams.get('cwms_ts_id_4');
+                                        var cwms_ts_id_5 = urlParams.get('cwms_ts_id_5');
+                                        var cwms_ts_id_6 = urlParams.get('cwms_ts_id_6');
+                                        var cwms_ts_id_7 = urlParams.get('cwms_ts_id_7');
+                                        var office = urlParams.get('office');
+                                        var lookforward = urlParams.get('lookforward') || '0';
+
+                                        // Extract text before the first period
+                                        const cwms_ts_id_before_period = cwms_ts_id.split('.')[0];
+
+                                        // Update the title
+                                        const titleElement = document.querySelector('.titleLabel.title');
+                                        if (titleElement) {
+                                            titleElement.textContent += `${cwms_ts_id_before_period}`;
+                                            console.log('Title updated to: ', titleElement.textContent);
+                                        }
+
+                                        // Calculate the document root
+                                        const documentRoot = window.location.protocol + "//" + window.location.host + "/";
+
+                                        console.log("office: ", office.toLowerCase());
+
+                                        // Determine the default value of cda based on documentRoot
+                                        const cdaDefault = (documentRoot === `https://wm.${office.toLowerCase()}.ds.usace.army.mil/`) ? "internal" : "public";
+
+                                        console.log("cdaDefault: ", cdaDefault);
+
+                                        if (cda === null) {
+                                            cda = cdaDefault;
+                                        }
+
+                                        console.log("cda: ", cda);
+                                    </script>
+
+                                    <!-- loading spinner -->
+                                    <div id="loading_chart" style="display: none;"><img src="images/loading4.gif"
+                                            style='height: 50px; width: 50px;' alt="Loading..." /></div>
+
+                                    <!-- chart js -->
+                                    <div id="chart"><canvas id="myChart" width="800" height="500"></canvas></div>
+                                    <script src="chart.js"></script>
+
+                                    <!-- Notice -->
+                                    <div id="notice">NOTICE: All data contained herein is preliminary in nature and
+                                        therefore subject to change. The data is for general
+                                        information purposes ONLY and SHALL NOT be used in technical applications such
+                                        as, but not limited to, studies or designs.
+                                        All critical data should be obtained from and verified by the United States Army
+                                        Corps of Engineers. The United States Government
+                                        assumes no liability for the completeness or accuracy of the data contained
+                                        herein and any use of such data inconsistent with this
+                                        disclaimer shall be solely at the risk of the user.</div>
+
+                                    <!-- control lookback date, metadata, 6am value, and metadata -->
+                                    <div class="gage_control_container">
+                                        <!-- date input -->
+                                        <div id="gage_control_01">
+                                            <form id="numberForm">
+                                                <label for="numberInput">Lookback Days:</label>
+                                                <input type="number" id="numberInput" name="numberInput" required>
+                                                <button type="submit">Update</button>
+                                            </form>
+                                            <script>
+                                                document.getElementById('numberForm').addEventListener('submit', function (event) {
+                                                    event.preventDefault(); // Prevent the form from submitting the traditional way
+                                                    const numberInput = document.getElementById('numberInput').value;
+                                                    alert('You entered: ' + numberInput);
+                                                });
+                                            </script>
+                                            <br>
+                                            <form id="numberFormForward">
+                                                <label for="numberInputForward">Lookforward Days:</label>
+                                                <input type="numberForward" id="numberInputForward"
+                                                    name="numberInputForward" required>
+                                                <button type="submit">Update</button>
+                                            </form>
+                                            <script>
+                                                document.getElementById('numberFormForward').addEventListener('submit', function (event) {
+                                                    event.preventDefault(); // Prevent the form from submitting the traditional way
+                                                    const numberInputForward = document.getElementById('numberInputForward').value;
+                                                    alert('You entered: ' + numberInputForward);
+                                                });
+                                            </script>
+                                        </div>
+                                        <!-- basin input -->
+                                        <div id="gage_control_02">
+                                            <script>
+                                                document.addEventListener('DOMContentLoaded', () => {
+                                                    // console.log("basin inside gage_control_02", basin);
+                                                    initializeBasinDropdown(basin, office);
+                                                });
+                                            </script>
+                                        </div>
+
+                                        <!-- data 6am level -->
+                                        <div id="gage_control_03"></div>
+
+                                        <!-- Location Data -->
+                                        <div id="gage_control_04"></div>
+                                    </div>
+
+                                    <!-- Switch API button -->
+                                    <div id="switchCda">
+                                        <script>
+                                            document.addEventListener('DOMContentLoaded', () => {
+                                                addSwitchCdaLink(office, basin, cwms_ts_id, cda);
+                                            });
+                                        </script>
+                                    </div>
+
+                                    <!-- data table -->
+                                    <div id="data_table"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- url parameters and handle submit change lookback hours -->
+                    <script>
+                        // Pre-populate the number input field with the value of 'lookback'
+                        document.getElementById('numberInput').value = lookback;
+                        document.getElementById('numberInputForward').value = lookforward;
+
+                        document.getElementById('numberForm').addEventListener('submit', function (event) {
+                            event.preventDefault(); // Prevent the form from submitting the traditional way
+                            const newLookback = document.getElementById('numberInput').value;
+                            // Update the URL with the new lookback value and reload the page
+                            const currentUrl = new URL(window.location.href);
+                            currentUrl.searchParams.set('lookback', newLookback);
+                            window.location.href = currentUrl.toString();
+                        });
+
+                        document.getElementById('numberFormForward').addEventListener('submit', function (event) {
+                            event.preventDefault(); // Prevent the form from submitting the traditional way
+                            const newLookforward = document.getElementById('numberInputForward').value;
+                            // Update the URL with the new lookback value and reload the page
+                            const currentUrl = new URL(window.location.href);
+                            currentUrl.searchParams.set('lookforward', newLookforward);
+                            window.location.href = currentUrl.toString();
+                        });
+                    </script>
+                </div>
+            </div>
+            <button id="returnTop" title="Return to Top of Page">Top</button>
+        </div>
+    </div>
+    <footer id="footer">
+        <!--Footer content populated here by script tag at end of body -->
+    </footer>
+    <script src="js/libraries/jQuery-3.3.6.min.js"></script>
+    <script defer>
+        // When the document has loaded pull in the page header and footer skins
+        $(document).ready(function () {
+            // Change the v= to a different number to force clearing the cached version on the client browser
+            $('#header').load('templates/DISTRICT.header.html');
+            if (basin == "Mississippi") {
+                $('#sidebar').load('templates/DISTRICT.sidebar.Mississippi.html');
+            } else if (basin == "Illinois") {
+                $('#sidebar').load('templates/DISTRICT.sidebar.Illinois.html');
+            } else if (basin == "Missouri") {
+                $('#sidebar').load('templates/DISTRICT.sidebar.Missouri.html');
+            } else if (basin == "Meramec") {
+                $('#sidebar').load('templates/DISTRICT.sidebar.Meramec.html');
+            } else if (basin == "Tributaries") {
+                $('#sidebar').load('templates/DISTRICT.sidebar.Tributaries.html');
+            } else if (basin == "Mark Twain DO") {
+                $('#sidebar').load('templates/DISTRICT.sidebar.MarkTwainDo.html');
+            } else if (basin == "Mark Twain") {
+                $('#sidebar').load('templates/DISTRICT.sidebar.MarkTwain.html');
+            } else if (basin == "Wappapello") {
+                $('#sidebar').load('templates/DISTRICT.sidebar.Wappapello.html');
+            } else if (basin == "Shelbyville") {
+                $('#sidebar').load('templates/DISTRICT.sidebar.Shelbyville.html');
+            } else if (basin == "Carlyle") {
+                $('#sidebar').load('templates/DISTRICT.sidebar.Carlyle.html');
+            } else if (basin == "Rend") {
+                $('#sidebar').load('templates/DISTRICT.sidebar.Rend.html');
+            } else if (basin == "Kaskaskia Nav") {
+                $('#sidebar').load('templates/DISTRICT.sidebar.KaskaskiaNav.html');
+            } else if (basin == "Water Quality") {
+                $('#sidebar').load('templates/DISTRICT.sidebar.WaterQuality.html');
+            } else {
+                // $('#sidebar').load('templates/DISTRICT.sidebar.html');
+            }
+            $('#footer').load('templates/DISTRICT.footer.html');
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,122 @@
+/**************************************************************************/
+/*PLOT MACRO*/
+/**************************************************************************/
+#chart {
+	border: 5px solid darkblue;
+    margin-bottom: 25px;
+}
+
+.chart-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.chart-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+canvas {
+    border: 1px solid #ccc;
+    margin: 10px;
+}
+
+/*** ===================================================================================== ***/
+/*** TABLE DATA ***/
+/*** ===================================================================================== ***/
+#gage_data {
+    border-collapse: collapse;
+    width: 100%;
+	margin-bottom: 100px;
+}
+#gage_data th {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: left;
+    background-color: darkblue;
+    color: white;
+	border: 1px solid #ddd;
+	padding: 5px;
+	text-align: center;
+}
+#gage_data td a {
+	text-decoration: none;
+}
+#gage_data th a {
+	color: black;
+	text-decoration: none;
+}
+#gage_data td {
+	border: 1px solid #ddd;
+	padding: 10px;
+	text-align: center;
+}
+#gage_data td a:hover, #gage_data th a:hover {
+	text-decoration: underline;
+}
+#gage_data tr:nth-child(even){
+	background-color: #f2f2f2;
+}
+#gage_data tr:hover {background-color: #ddd;}
+
+hr {
+	border: none; /* Remove any default border */
+  	border-top: 1px solid #000; /* Set the top border to be 1 pixel thick and black */
+}
+/*** ===================================================================================== ***/
+/*** FORM ***/
+/*** ===================================================================================== ***/
+form {
+    max-width: 300px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+label, input, select {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+/*** ===================================================================================== ***/
+/*** FORM ***/
+/*** ===================================================================================== ***/
+#data_table {
+    width: 24%;
+}
+/*** ===================================================================================== ***/
+/*** MISC ***/
+/*** ===================================================================================== ***/
+.highlight-red {
+    background-color: #ffcccc; /* Light red background */
+    color: red; /* Red text color */
+}
+.gage_control_container {
+    display: flex;
+    justify-content: space-between; /* Evenly space out the divs */
+    flex-wrap: wrap; /* Allow wrapping if needed */
+}
+#gage_control_01, #gage_control_02, #gage_control_03, #gage_control_04 {
+    width: 24%;
+    padding: 10px;
+    border: 1px solid #666666;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    height: 200px;
+    box-sizing: border-box; /* Include padding and border in the width and height */
+}
+#forecast {
+    width: 24%;
+    padding: 10px;
+    border: 1px solid #666666;
+    margin-bottom: 30px;
+    margin-top: 10px;
+    height: 75px;
+    box-sizing: border-box; /* Include padding and border in the width and height */
+}
+#notice {
+    width: 100%; 
+}
+
