@@ -119,4 +119,114 @@ label, input, select {
 #notice {
     width: 100%; 
 }
+/*** ===================================================================================== ***/
+/*** LOOKBACK CONTROL ***/
+/*** ===================================================================================== ***/
+.gage_control_container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+#gage_control_01, #gage_control_02, #gage_control_03, #gage_control_04 {
+    width: 24%;
+    padding: 15px;
+    border: 1px solid #666666;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    height: 400px;
+    box-sizing: border-box;
+}
+form.modern-form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px; /* Adds space between the forms */
+}
+form.modern-form label {
+    font-weight: 600;
+    color: #333;
+}
+form.modern-form input[type="number"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+form.modern-form input[type="number"]:focus {
+    border-color: #007bff;
+}
+form.modern-form button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+form.modern-form button:hover {
+    background-color: #0056b3;
+}
+.highlight-red {
+    background-color: #ffcccc;
+    color: red;
+}
+/*** ===================================================================================== ***/
+/*** BASIN MENU ***/
+/*** ===================================================================================== ***/
+.basin-dropdown-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
 
+.dropdown-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.basin-dropdown {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.basin-dropdown:focus {
+    border-color: #007bff;
+}
+
+.submit-button {
+    padding: 10px;
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-sizing: border-box;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
