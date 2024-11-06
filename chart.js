@@ -549,7 +549,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 });
 
-// Function to plot data using Chart.js
 function plotData(datasets) {
     // console.log('datasets @ plotData: ', datasets);
 
@@ -822,7 +821,6 @@ function plotData(datasets) {
     });
 }
 
-// Function to check Daylight Saving Time
 function isDaylightSavingTime(date) {
     const january = new Date(date.getFullYear(), 0, 1);
     const july = new Date(date.getFullYear(), 6, 1);
@@ -830,7 +828,6 @@ function isDaylightSavingTime(date) {
     return date.getTimezoneOffset() < stdTimezoneOffset;
 }
 
-// Function to calculate initial min and max Y values from visible datasets
 function getInitialMinMaxY(datasets) {
     let minY = Infinity; // Initialize minY to the highest possible number
     let maxY = -Infinity; // Initialize maxY to the lowest possible number
@@ -955,7 +952,6 @@ function getInitialMinMaxY(datasets) {
     return { minY, maxY };
 }
 
-// Function to get current data time
 function subtractHoursFromDate(date, hoursToSubtract) {
     return new Date(date.getTime() - (hoursToSubtract * 60 * 60 * 1000));
 }
@@ -964,7 +960,6 @@ function subtractDaysFromDate(date, daysToSubtract) {
     return new Date(date.getTime() - (daysToSubtract * 24 * 60 * 60 * 1000));
 }
 
-// Function to get current data time
 function addHoursFromDate(date, hoursToAdd) {
     return new Date(date.getTime() + (hoursToAdd * 60 * 60 * 1000));
 }
@@ -973,7 +968,6 @@ function addDaysFromDate(date, daysToAdd) {
     return new Date(date.getTime() + (daysToAdd * 24 * 60 * 60 * 1000));
 }
 
-// Function to format date time to mm-dd-yyyy
 function formatDate(timestamp) {
     const date = new Date(timestamp);
     const formattedDate = date.toLocaleString('en-US', {
@@ -987,7 +981,6 @@ function formatDate(timestamp) {
     return formattedDate;
 }
 
-// Function to create data table
 function createTable(data, floodLevel) {
     // Sort data[0].data by 'x' in descending order
     data[0].data.sort((a, b) => b.x - a.x);
@@ -1033,7 +1026,6 @@ function createTable(data, floodLevel) {
     return table;
 }
 
-// Function to create data table without floodLevel
 function createTableWithoutFloodLevel(data) {
     // console.log('data @ createTableWithoutFloodLevel: ', data);
 
@@ -1076,7 +1068,6 @@ function createTableWithoutFloodLevel(data) {
     return table;
 }
 
-// Function to get flood level
 function getFloodLevel(floodLevelTimeSeries) {
     let floodLevel = null;
 
@@ -1099,7 +1090,6 @@ function getFloodLevel(floodLevelTimeSeries) {
     return floodLevel;
 }
 
-// Function to get minY and maxY for dual axis chart
 function getInitialMinMaxYDualAxis(datasets, uniqueParameterIds) {
     // console.log("getInitialMinMaxYDualAxis for dual axis");
 
@@ -1174,7 +1164,6 @@ function getInitialMinMaxYDualAxis(datasets, uniqueParameterIds) {
     return { minY, maxY };
 }
 
-// Function to display vertical datum and elevation
 function displayLocationData(data, data2, versionId) {
     let verticalDatum = null;
     let elevation = null;
@@ -1190,7 +1179,6 @@ function displayLocationData(data, data2, versionId) {
     locationDataDiv.innerHTML += `Vertical Datum: ${verticalDatum}<br>Gage Zero: ${elevation} ft` + `<br>`;
 }
 
-// Function to display ngvd29 vertical datum
 function displayNgvd29Data(data, data2, versionId) {
 
     let verticalDatum = null;
@@ -1212,7 +1200,6 @@ function displayNgvd29Data(data, data2, versionId) {
     locationDataDiv.innerHTML += `Vertical Datum: ${verticalDatum}<br>Gage Zero: ${elevation} ft`;
 }
 
-// Function to generate formatted time string for a given date
 function format6AmTargetTime(date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
@@ -1220,7 +1207,6 @@ function format6AmTargetTime(date) {
     return `${year}-${month}-${day}T06:00:00-05:00`;
 }
 
-// Function to find value at 6:00 AM from the datasets
 function findValueAt6Am(datasets, targetTimeString) {
     // console.log("datasets @ findValueAt6Am ", datasets);
 
@@ -1279,7 +1265,6 @@ function findValueAt6Am(datasets, targetTimeString) {
     return `No value found for ${formattedTime} US/Central time.`;
 }
 
-// Main function to handle the process
 function processDataAndDisplay(datasets) {
     // Check if there are multiple datasets
     if (datasets.length > 1) {
@@ -1308,7 +1293,6 @@ function processDataAndDisplay(datasets) {
     `;
 }
 
-// Function to get minY and maxY for dual axis chart version 2
 function getInitialMinMaxYDualAxis2(datasets, uniqueParameterIds) {
     let minY = { y0: Infinity, y1: Infinity };
     let maxY = { y0: -Infinity, y1: -Infinity };
