@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 data: firstDataset.values.map(item => ({ x: item[0], y: item[1] })),
                                 borderColor: 'red',
                                 backgroundColor: 'red',
-                                
+
                                 borderWidth: 3, // Change the width of the connecting lines
                                 tension: 0.5, // Adjust this value for the desired curve. 0: Represents straight lines. 1: Represents very smooth, rounded curves.
                                 cubicInterpolationMode: 'default', // Set to 'default' for a solid and smooth line. 
@@ -375,7 +375,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         // console.log("series: ", (series));
 
                         // Create Chart JS
-                        plotData(series);
+                        plotData(series, lookback);
 
                         // Get flood level
                         const floodLevel = getFloodLevel(floodLevelTimeSeries);
@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // // console.log(series);
 
-                plotData(series);
+                plotData(series, lookback);
 
                 // Create Data Table
                 document.getElementById('data_table').innerHTML = createTableWithoutFloodLevel(series);
@@ -478,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // console.log(series);
 
                 // Plot Data
-                plotData(series);
+                plotData(series, lookback);
 
                 // Call the main function to process and display 6am data
                 processDataAndDisplay(nonEmptyDatasets);
@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // console.log("series: ", series);
 
                 // Plot Data
-                plotData(series);
+                plotData(series, lookback);
 
                 // Call the main function to process and display 6am data
                 processDataAndDisplay(nonEmptyDatasets);
@@ -549,8 +549,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 });
 
-function plotData(datasets) {
-    // console.log('datasets @ plotData: ', datasets);
+function plotData(datasets, lookback) {
+    console.log('datasets: ', datasets);
+    console.log('lookback: ', lookback);
 
     // Extract unique parameter IDs for creating multiple y-axes, excluding null and undefined
     const uniqueParameterIds = [...new Set(datasets.map(item => item.parameter_id).filter(id => id != null))];
@@ -672,13 +673,17 @@ function plotData(datasets) {
                                 const tick = ticks[tickIndex];
                                 if (tick) {
                                     const tickLabel = tick.label;
-                                    if (tickLabel == "06:00" || tickLabel == "12:00" || tickLabel == "18:00") {
-                                        return 1;
+
+                                    if (lookback <= 15) {
+                                        // Apply different line widths for key times
+                                        return (tickLabel === "06:00" || tickLabel === "12:00" || tickLabel === "18:00") ? 1 : 3;
                                     } else {
-                                        return 3;
+                                        // Use a consistent line width if lookback > 15
+                                        return 1;
                                     }
                                 }
                             }
+                            return 1;
                         },
                         color: (context) => {
                             return 'rgba(150, 150, 150, 0.8)';
@@ -690,11 +695,11 @@ function plotData(datasets) {
                             const current_hour_utc = date.getUTCHours() === 0 ? 24 : date.getUTCHours();
                             const DaylightSavingTime = isDaylightSavingTime(date) ? 5 : 6;
                             const current_hour_cst = current_hour_utc - DaylightSavingTime;
-                        
+
                             // Create an array of day abbreviations
                             const dayAbbreviations = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
                             const dayOfWeek = dayAbbreviations[date.getUTCDay()]; // Get the day abbreviation
-                        
+
                             if (current_hour_cst === 6 || current_hour_cst === 12 || current_hour_cst === 18) {
                                 return new Intl.DateTimeFormat('en-US', {
                                     hour: 'numeric',
@@ -711,7 +716,7 @@ function plotData(datasets) {
                                     timeZone: 'America/Chicago',
                                 }).format(new Date(value));
                             }
-                        },                        
+                        },
                         maxRotation: 90,
                         minRotation: 90,
                     },
@@ -982,9 +987,9 @@ function formatDate(timestamp) {
 }
 
 function createTable(data, floodLevel) {
-    console.log("data: ", data);
-    console.log("data: ", data[0][`parameter_id`]);
-    
+    // console.log("data: ", data);
+    // console.log("data: ", data[0][`parameter_id`]);
+
     // Sort data[0].data by 'x' in descending order
     data[0].data.sort((a, b) => b.x - a.x);
 
@@ -1553,10 +1558,10 @@ function netmissForecast(cwms_ts_id, cwms_ts_id_2) {
 function addSwitchCdaLink(office, basin, cwms_ts_id, cda) {
     // Find the div element by its ID
     const switchCdaDiv = document.getElementById('switchCda');
-    
+
     // Create a new anchor (link) element
     const link = document.createElement('a');
-    
+
     // Set initial text, href, and style based on the current API type
     if (cda === 'public') {
         // If on Public API, set text to switch to Internal API and background to green
@@ -1569,7 +1574,7 @@ function addSwitchCdaLink(office, basin, cwms_ts_id, cda) {
         link.href = "index.html?" + "office=" + office + "&basin=" + basin + "&cwms_ts_id=" + cwms_ts_id + "&cda=public";
         link.style.backgroundColor = "darkblue";  // Dark blue background
     }
-    
+
     // Apply other inline CSS to style it as a modern button
     link.style.display = "inline-block";
     link.style.padding = "10px 20px";
@@ -1580,12 +1585,12 @@ function addSwitchCdaLink(office, basin, cwms_ts_id, cda) {
     link.style.fontSize = "16px";
     link.style.transition = "background-color 0.3s";
     link.style.marginBottom = "20px";  // Set margin bottom to 20px
-    
+
     // Add a hover effect
-    link.onmouseover = function() {
+    link.onmouseover = function () {
         link.style.backgroundColor = "#45a049"; // Hover effect - green color on hover
     };
-    link.onmouseout = function() {
+    link.onmouseout = function () {
         // Reset background color based on the current API type
         link.style.backgroundColor = cda === 'public' ? "#4CAF50" : "darkblue";  // Green for Internal API, dark blue for Public API
     };
