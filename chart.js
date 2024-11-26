@@ -1417,6 +1417,71 @@ function initializeBasinDropdown(basin, office) {
     }
 }
 
+function initializeBasinDropdownDataEditing(basin, office, type) {
+    if (basin !== null) {
+        const basins = [
+            "Big Muddy",
+            "Cuivre",
+            "Illinois",
+            "Kaskaskia",
+            "Meramec",
+            "Mississippi",
+            "Missouri",
+            "Ohio",
+            "Salt",
+            "St Francis"
+        ];
+
+        const container = document.getElementById('gage_control_02');
+        if (!container) {
+            console.error('Container with id "gage_control_02" not found');
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="basin-dropdown-container">
+                <label for="basinDropdown" class="dropdown-label">Select a Basin</label>
+                <select id="basinDropdown" class="basin-dropdown">
+                    ${basins.map(item => `<option value="${item}">${item}</option>`).join('')}
+                </select>
+                <button id="submitButton" class="submit-button">Submit</button>
+            </div>
+        `;
+
+        const dropdown = document.getElementById('basinDropdown');
+        const submitButton = document.getElementById('submitButton');
+
+        const getQueryParameter = (name) => {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        };
+
+        const selectedBasin = getQueryParameter('basin') || basin;
+        if (selectedBasin) dropdown.value = selectedBasin;
+
+        submitButton.addEventListener('click', () => {
+            const selectedBasin = dropdown.value;
+
+            const basinMap = {
+                "Big Muddy": "Rend Lk-Big Muddy.Elev.Inst.30Minutes.0.lrgsShef-rev",
+                "Cuivre": "Troy-Cuivre.Elev.Inst.15Minutes.0.lrgsShef-rev",
+                "Illinois": "Meredosia-Illinois.Elev.Inst.30Minutes.0.lrgsShef-rev",
+                "Meramec": "Eureka-Meramec.Elev.Inst.30Minutes.0.lrgsShef-rev",
+                "Kaskaskia": "Venedy Station-Kaskaskia.Elev.Inst.15Minutes.0.lrgsShef-rev",
+                "Missouri": "St Charles-Missouri.Elev.Inst.30Minutes.0.lrgsShef-rev",
+                "Mississippi": "St Louis-Mississippi.Elev.Inst.30Minutes.0.lrgsShef-rev",
+                "St Francis": "Iron Bridge-St Francis.Elev.Inst.30Minutes.0.lrgsShef-rev",
+                "Salt": "Wappapello Lk-St Francis.Elev.Inst.30Minutes.0.lrgsShef-rev",
+                "Ohio": "Cairo-Ohio.Elev.Inst.1Hour.0.lrgsShef-rev",
+            };
+
+            const selectedTsis = basinMap[selectedBasin] || "St Louis-Mississippi.Stage.Inst.30Minutes.0.lrgsShef-rev";
+            const newUrl = `?office=${office}&type=${type}&basin=${selectedBasin}&cwms_ts_id=${selectedTsis}&lookback=30`;
+            window.location.href = newUrl;
+        });
+    }
+}
+
 function netmissForecast(cwms_ts_id, cwms_ts_id_2) {
     // Get the container element by its ID
     const container = document.getElementById('forecast');

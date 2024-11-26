@@ -59,6 +59,10 @@
                                         var cwms_ts_id_7 = urlParams.get('cwms_ts_id_7');
                                         var office = urlParams.get('office');
                                         var lookforward = urlParams.get('lookforward') || '0';
+                                        var type = urlParams.get('type');
+
+                                        console.log("type: ", type);
+                                        console.log("basin: ", basin);
 
                                         // Extract text before the first period
                                         const cwms_ts_id_before_period = cwms_ts_id.split('.')[0];
@@ -125,8 +129,8 @@
                                             <br>
                                             <form id="numberFormForward" class="modern-form">
                                                 <label for="numberInputForward">Lookforward Days:</label>
-                                                <input type="number" id="numberInputForward"
-                                                    name="numberInputForward" required>
+                                                <input type="number" id="numberInputForward" name="numberInputForward"
+                                                    required>
                                                 <button type="submit">Update</button>
                                             </form>
                                             <script>
@@ -142,7 +146,11 @@
                                             <script>
                                                 document.addEventListener('DOMContentLoaded', () => {
                                                     // console.log("basin inside gage_control_02", basin);
-                                                    initializeBasinDropdown(basin, office);
+                                                    if (type === "editing") {
+                                                        initializeBasinDropdownDataEditing(basin, office, type);
+                                                    } else {
+                                                        initializeBasinDropdown(basin, office);
+                                                    }
                                                 });
                                             </script>
                                         </div>
@@ -207,34 +215,60 @@
         $(document).ready(function () {
             // Change the v= to a different number to force clearing the cached version on the client browser
             $('#header').load('templates/DISTRICT.header.html');
-            if (basin == "Mississippi") {
-                $('#sidebar').load('templates/DISTRICT.sidebar.Mississippi.html');
-            } else if (basin == "Illinois") {
-                $('#sidebar').load('templates/DISTRICT.sidebar.Illinois.html');
-            } else if (basin == "Missouri") {
-                $('#sidebar').load('templates/DISTRICT.sidebar.Missouri.html');
-            } else if (basin == "Meramec") {
-                $('#sidebar').load('templates/DISTRICT.sidebar.Meramec.html');
-            } else if (basin == "Tributaries") {
-                $('#sidebar').load('templates/DISTRICT.sidebar.Tributaries.html');
-            } else if (basin == "Mark Twain DO") {
-                $('#sidebar').load('templates/DISTRICT.sidebar.MarkTwainDo.html');
-            } else if (basin == "Mark Twain") {
-                $('#sidebar').load('templates/DISTRICT.sidebar.MarkTwain.html');
-            } else if (basin == "Wappapello") {
-                $('#sidebar').load('templates/DISTRICT.sidebar.Wappapello.html');
-            } else if (basin == "Shelbyville") {
-                $('#sidebar').load('templates/DISTRICT.sidebar.Shelbyville.html');
-            } else if (basin == "Carlyle") {
-                $('#sidebar').load('templates/DISTRICT.sidebar.Carlyle.html');
-            } else if (basin == "Rend") {
-                $('#sidebar').load('templates/DISTRICT.sidebar.Rend.html');
-            } else if (basin == "Kaskaskia Nav") {
-                $('#sidebar').load('templates/DISTRICT.sidebar.KaskaskiaNav.html');
-            } else if (basin == "Water Quality") {
-                $('#sidebar').load('templates/DISTRICT.sidebar.WaterQuality.html');
+            if (type === "editing") {
+                if (basin === "Big Muddy") {
+                    $('#sidebar').load('templates/DATA_EDITING.sidebar.BigMuddy.html');
+                } else if (basin === "Cuivre") {
+                    $('#sidebar').load('templates/DATA_EDITING.sidebar.Cuivre.html');
+                } else if (basin === "Illinois") {
+                    $('#sidebar').load('templates/DATA_EDITING.sidebar.Illinois.html');
+                } else if (basin === "Kaskaskia") {
+                    $('#sidebar').load('templates/DATA_EDITING.sidebar.Kaskaskia.html');
+                } else if (basin === "Meramec") {
+                    $('#sidebar').load('templates/DATA_EDITING.sidebar.Meramec.html');
+                } else if (basin === "Mississippi") {
+                    $('#sidebar').load('templates/DATA_EDITING.sidebar.Mississippi.html');
+                } else if (basin === "Missouri") {
+                    $('#sidebar').load('templates/DATA_EDITING.sidebar.Missouri.html');
+                } else if (basin === "Ohio") {
+                    $('#sidebar').load('templates/DATA_EDITING.sidebar.Ohio.html');
+                } else if (basin === "Salt") {
+                    $('#sidebar').load('templates/DATA_EDITING.sidebar.Salt.html');
+                } else if (basin === "St Francis") {
+                    $('#sidebar').load('templates/DATA_EDITING.sidebar.StFrancis.html');
+                } else {
+                    // $('#sidebar').load('templates/DISTRICT.sidebar.html');
+                }
             } else {
-                // $('#sidebar').load('templates/DISTRICT.sidebar.html');
+                if (basin === "Mississippi") {
+                    $('#sidebar').load('templates/DISTRICT.sidebar.Mississippi.html');
+                } else if (basin === "Illinois") {
+                    $('#sidebar').load('templates/DISTRICT.sidebar.Illinois.html');
+                } else if (basin === "Missouri") {
+                    $('#sidebar').load('templates/DISTRICT.sidebar.Missouri.html');
+                } else if (basin === "Meramec") {
+                    $('#sidebar').load('templates/DISTRICT.sidebar.Meramec.html');
+                } else if (basin === "Tributaries") {
+                    $('#sidebar').load('templates/DISTRICT.sidebar.Tributaries.html');
+                } else if (basin === "Mark Twain DO") {
+                    $('#sidebar').load('templates/DISTRICT.sidebar.MarkTwainDo.html');
+                } else if (basin === "Mark Twain") {
+                    $('#sidebar').load('templates/DISTRICT.sidebar.MarkTwain.html');
+                } else if (basin === "Wappapello") {
+                    $('#sidebar').load('templates/DISTRICT.sidebar.Wappapello.html');
+                } else if (basin === "Shelbyville") {
+                    $('#sidebar').load('templates/DISTRICT.sidebar.Shelbyville.html');
+                } else if (basin === "Carlyle") {
+                    $('#sidebar').load('templates/DISTRICT.sidebar.Carlyle.html');
+                } else if (basin === "Rend") {
+                    $('#sidebar').load('templates/DISTRICT.sidebar.Rend.html');
+                } else if (basin === "Kaskaskia Nav") {
+                    $('#sidebar').load('templates/DISTRICT.sidebar.KaskaskiaNav.html');
+                } else if (basin === "Water Quality") {
+                    $('#sidebar').load('templates/DISTRICT.sidebar.WaterQuality.html');
+                } else {
+                    // $('#sidebar').load('templates/DISTRICT.sidebar.html');
+                }
             }
             $('#footer').load('templates/DISTRICT.footer.html');
         })
