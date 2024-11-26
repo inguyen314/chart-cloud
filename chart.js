@@ -982,6 +982,9 @@ function formatDate(timestamp) {
 }
 
 function createTable(data, floodLevel) {
+    console.log("data: ", data);
+    console.log("data: ", data[0][`parameter_id`]);
+    
     // Sort data[0].data by 'x' in descending order
     data[0].data.sort((a, b) => b.x - a.x);
 
@@ -989,7 +992,6 @@ function createTable(data, floodLevel) {
     let table = '<table id="gage_data"><thead><tr><th>Date Time</th><th>Value</th></tr></thead><tbody>';
 
     let parameter_id = data[0].parameter_id;
-    // console.log('parameter_id @ createTableWithoutFloodLevel: ', parameter_id);
 
     // Iterate through each point in data[0].data
     data[0].data.forEach(point => {
@@ -998,19 +1000,13 @@ function createTable(data, floodLevel) {
 
         let formattedValue = null;
         if (point.y !== null) {
-            if (parameter_id === "Flow") {
-                formattedValue = point.y.toFixed(0);
-            } else {
-                formattedValue = point.y.toFixed(2);
-            }
+            formattedValue = parameter_id === "Flow" ? point.y.toFixed(0) : point.y.toFixed(2);
         } else {
             formattedValue = 'N/A';
         }
 
-        // Determine if the current value exceeds the flood level
-        // console.log("exceedFloodLevel: ", formattedValue, floodLevel, typeof(formattedValue), typeof(floodLevel));
-        const exceedFloodLevel = parseFloat(formattedValue) > floodLevel;
-        // console.log("exceedFloodLevel: ", exceedFloodLevel);
+        // Determine if the current value exceeds the flood level and should be colored red
+        const exceedFloodLevel = parameter_id === "Stage" && parseFloat(formattedValue) > floodLevel;
 
         // Construct the table row with conditional class for text color
         table += `<tr>
