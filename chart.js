@@ -406,8 +406,18 @@ document.addEventListener('DOMContentLoaded', function () {
                             console.log("cwms_ts_id: ", cwms_ts_id);
                             const parts = cwms_ts_id.split('.');
                             // Reassemble the first two parts
-                            const extracted = `${parts[0]}.${parts[1]}`;
+                            const extracted = `${parts[0]}`;
                             console.log('Extracted part: ', extracted);
+
+                            const extractedVersion = `${parts[5]}`;
+                            console.log('extractedVersion: ', extractedVersion);
+
+                            let parameterDatman = null;
+                            if (extractedVersion === "29") {
+                                parameterDatman = "Elev";
+                            } else {
+                                parameterDatman = "Stage";
+                            }
 
                             // Filter the values to leave them as null if they are null or greater than 999
                             const filteredValues = filteredData.map(item => {
@@ -428,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             
 
                             payload = {
-                                "name": `${extracted}.Inst.~1Day.0.datman-rev`,
+                                "name": `${extracted}.${parameterDatman}.Inst.~1Day.0.datman-rev`,
                                 "office-id": "MVS",
                                 "units": "ft",
                                 "values": filteredValues
