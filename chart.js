@@ -1262,7 +1262,7 @@ function createTableDatman(data, floodLevel) {
     data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     // Initialize the table structure
-    let table = '<table id="datman_data"><thead><tr><th>Date Time</th><th>Value</th></tr></thead><tbody>';
+    let table = '<table id="datman_data"><thead><tr><th>Datman Date Time</th><th>Value</th></tr></thead><tbody>';
 
     // Iterate through each point in the filtered data
     data.forEach(point => {
