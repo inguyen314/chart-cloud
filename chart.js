@@ -402,17 +402,36 @@ document.addEventListener('DOMContentLoaded', function () {
                             });
 
                             // Log filtered data for debugging
-                            console.log("Filtered Data: ", filteredData);
+                            console.log("filteredData: ", filteredData);
+                            console.log("cwms_ts_id: ", cwms_ts_id);
+                            const parts = cwms_ts_id.split('.');
+                            // Reassemble the first two parts
+                            const extracted = `${parts[0]}.${parts[1]}`;
+                            console.log('Extracted part: ', extracted);
+
+                            // Filter the values to leave them as null if they are null or greater than 999
+                            const filteredValues = filteredData.map(item => {
+                                let value = item.value;
+
+                                // Leave value as null if it is null or greater than 999
+                                if (value === null || value > 999 || value < -999) {
+                                    value = null; // Set to null if value is null or greater than 999
+                                }
+
+                                return [
+                                    new Date(item.timestamp).getTime(),  // Convert timestamp to Unix time (ms)
+                                    value,                               // Use the value (which is null if condition is met)
+                                    0                                     // Always 0 as the third element
+                                ];
+                            });
+                            console.log("filteredValues: ", filteredValues);
+                            
 
                             payload = {
-                                "name": "Grays Pt-Mississippi.Stage.Inst.~1Day.0.netmiss-fcst",
+                                "name": `${extracted}.Inst.~1Day.0.datman-rev`,
                                 "office-id": "MVS",
                                 "units": "ft",
-                                "values": filteredData.map(item => [
-                                    new Date(item.timestamp).getTime(),  // Convert timestamp to Unix time (ms)
-                                    item.value,                         // Use the value from the data
-                                    0                                   // Always 0 as the third element
-                                ])
+                                "values": filteredValues
                             };
 
                             console.log("payload: ", payload);

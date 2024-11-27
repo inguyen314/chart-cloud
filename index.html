@@ -71,10 +71,19 @@
                                         const cwms_ts_id_before_period = cwms_ts_id.split('.')[0];
 
                                         // Update the title
-                                        const titleElement = document.querySelector('.titleLabel.title');
-                                        if (titleElement) {
-                                            titleElement.textContent += `${cwms_ts_id_before_period}`;
-                                            console.log('Title updated to: ', titleElement.textContent);
+                                        if (type) {
+                                            // Update the title
+                                            const titleElement = document.querySelector('.titleLabel.title');
+                                            if (titleElement) {
+                                                titleElement.textContent += `${cwms_ts_id_before_period} - ${type.toUpperCase()}`;
+                                                console.log('Title updated to: ', titleElement.textContent);
+                                            }
+                                        } else {
+                                            const titleElement = document.querySelector('.titleLabel.title');
+                                            if (titleElement) {
+                                                titleElement.textContent += `${cwms_ts_id_before_period}`;
+                                                console.log('Title updated to: ', titleElement.textContent);
+                                            }
                                         }
 
                                         // Calculate the document root
