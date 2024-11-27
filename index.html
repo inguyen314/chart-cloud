@@ -188,27 +188,14 @@
                                     <div class="gage_control_container">
                                         <div id="data_table"></div>
                                         <div id="data_table_datman"></div>
-                                        <div id="data_table_datman_load">
-                                            <button id="loadDatmanButton" style="
-                                                background-color: #4CAF50; /* Green background */
-                                                border: none; /* Remove border */
-                                                color: white; /* White text */
-                                                padding: 10px 20px; /* Padding for better size */
-                                                text-align: center; /* Center text */
-                                                text-decoration: none; /* Remove underline */
-                                                display: inline-block; /* Align it inline */
-                                                font-size: 16px; /* Font size */
-                                                margin: 4px 2px; /* Margin for spacing */
-                                                cursor: pointer; /* Pointer cursor on hover */
-                                                border-radius: 8px; /* Rounded corners */
-                                                transition: background-color 0.3s, transform 0.2s; /* Smooth transition effects */
-                                            " onmouseover="this.style.backgroundColor='#45a049';"
-                                                onmouseout="this.style.backgroundColor='#4CAF50';"
-                                                onclick="this.style.transform='scale(0.98)'; setTimeout(() => this.style.transform='scale(1)', 150);">
+                                        <div id="datman_load">
+                                            <button id="loadDatmanButton">
                                                 Load Datman Data
                                             </button>
+                                            <div class="status"></div>
+                                            <button id="cda-btn" disabled>Login</button>
+                                            <button id="cda-delete-btn" disabled>delete</button>
                                         </div>
-
                                         <div id="data_table_4"></div>
                                     </div>
                                 </div>

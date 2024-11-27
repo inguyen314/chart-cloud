@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const loadingIndicator = document.getElementById('loading_chart');
     loadingIndicator.style.display = 'block';
 
+    // How loading option
+    showDatmanLoad(type);
+
     // Define your tsids
     const tsids = [
         { cwms_ts_id: encodeURIComponent(cwms_ts_id) },
@@ -118,6 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // console.log("unitId2: ", unitId2);  // ft
             }
 
+            let payload = null;
             // Chart Type Setup
             if (nonEmptyDatasets.length === 1 & (parameterId === "Stage" || parameterId === "Elev")) {
                 // console.log("============== for single dataset plot with location levels ==============");
@@ -391,8 +395,165 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             console.log("convertedData: ", convertedData);
 
+                            // Filter out the data points where the time is exactly 8:00 AM
+                            const filteredData = convertedData.filter(point => {
+                                const date = new Date(point.timestamp);
+                                return (date.getHours() === 8 && date.getMinutes() === 0);
+                            });
+
+                            // Log filtered data for debugging
+                            console.log("Filtered Data: ", filteredData);
+
+                            payload = {
+                                "name": "Grays Pt-Mississippi.Stage.Inst.~1Day.0.netmiss-fcst",
+                                "office-id": "MVS",
+                                "units": "ft",
+                                "values": filteredData.map(item => [
+                                    new Date(item.timestamp).getTime(),  // Convert timestamp to Unix time (ms)
+                                    item.value,                         // Use the value from the data
+                                    0                                   // Always 0 as the third element
+                                ])
+                            };
+
+                            console.log("payload: ", payload);
+
+                            //************************************************/
+                            // CDA BUTTON
+                            // ***********************************************/ 
+                            const statusBtn = document.querySelector(".status");
+                            const cdaBtn = document.getElementById("cda-btn");
+
+                            async function loginStateController() {
+                                cdaBtn.disabled = true
+                                if (await isLoggedIn()) {
+                                    // Variables / attributes of the element/dom
+                                    cdaBtn.innerText = "Save"
+                                } else {
+                                    cdaBtn.innerText = "Login"
+                                }
+                                cdaBtn.disabled = false
+                            }
+
+                            async function loginCDA() {
+                                console.log("page");
+                                if (await isLoggedIn()) return true;
+                                console.log('is false');
+
+                                // Redirect to login page
+                                window.location.href = `https://wm.mvs.ds.usace.army.mil:8243/CWMSLogin/login?OriginalLocation=${encodeURIComponent(window.location.href)}`;
+                            }
+
+                            async function isLoggedIn() {
+                                try {
+                                    const response = await fetch("https://wm.mvs.ds.usace.army.mil/mvs-data/auth/keys", {
+                                        method: "GET"
+                                    });
+
+                                    if (response.status === 401) return false;
+
+                                    console.log('status', response.status);
+                                    return true;
+
+                                } catch (error) {
+                                    console.error('Error checking login status:', error);
+                                    return false;
+                                }
+                            }
+
+                            async function writeTS(payload) {
+                                if (!payload) throw new Error("You must specify a payload!");
+
+                                try {
+                                    const response = await fetch("https://wm.mvs.ds.usace.army.mil/mvs-data/timeseries?store-rule=REPLACE%20ALL", {
+                                        method: "POST",
+                                        headers: {
+                                            "accept": "*/*",
+                                            "Content-Type": "application/json;version=2",
+                                        },
+
+
+                                        body: JSON.stringify(payload)
+                                    });
+
+                                    if (!response.ok) {
+                                        const errorText = await response.text();
+                                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                                    }
+
+                                    // const data = await response.json();
+                                    // console.log('Success:', data);
+                                    // return data;
+                                    return true;
+
+                                } catch (error) {
+                                    console.error('Error writing timeseries:', error);
+                                    throw error;
+                                }
+                            }
+
+                            async function deleteTS(payload) {
+                                if (!payload) throw new Error("You must specify a payload!");
+
+                                try {
+                                    const response = await fetch("https://wm.mvs.ds.usace.army.mil/mvs-data/timeseries?store-rule=REPLACE%20ALL", {
+                                        method: "POST",
+                                        headers: {
+                                            "accept": "*/*",
+                                            "Content-Type": "application/json;version=2",
+                                        },
+
+
+                                        body: JSON.stringify(payload)
+                                    });
+
+                                    if (!response.ok) {
+                                        const errorText = await response.text();
+                                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                                    }
+
+                                    // const data = await response.json();
+                                    // console.log('Success:', data);
+                                    // return data;
+                                    return true;
+
+                                } catch (error) {
+                                    console.error('Error writing timeseries:', error);
+                                    throw error;
+                                }
+                            }
+
+                            console.log("payload to save: ", payload);
+
+                            // Page Start
+                            cdaBtn.onclick = async () => {
+                                if (cdaBtn.innerText === "Login") {
+                                    const loginResult = await loginCDA();
+                                    console.log({ loginResult });
+                                    if (loginResult) {
+                                        cdaBtn.innerText = "Submit";
+                                    } else {
+                                        statusBtn.innerText = "Failed to Login!";
+                                    }
+                                } else {
+                                    try {
+                                        // Write timeseries to CDA
+                                        console.log("Write!");
+                                        await writeTS(payload);
+                                        statusBtn.innerText = "Write successful!";
+                                    } catch (error) {
+                                        statusBtn.innerText = "Failed to write data!";
+                                    }
+                                }
+                            };
+
+                            loginStateController()
+                            // Setup timers
+                            setInterval(async () => {
+                                loginStateController()
+                            }, 10000) // time is in millis
+
                             // Create Datman Table
-                            document.getElementById('data_table_datman').innerHTML = createTableDatman(convertedData, floodLevel);
+                            document.getElementById('data_table_datman').innerHTML = createTableDatman(filteredData, floodLevel);
                         }
 
                         // Create Data Table
@@ -563,7 +724,10 @@ document.addEventListener('DOMContentLoaded', function () {
             loadingIndicator.style.display = 'none';
         });
 
+
+    //************************************************/
     // Attach the click event listener to the button
+    // ***********************************************/ 
     document.getElementById('loadDatmanButton').addEventListener('click', function () {
         // Extract data from the table when the button is clicked
         const table = document.getElementById('datman_data');
@@ -1071,17 +1235,8 @@ function createTableDatman(data, floodLevel) {
     // Initialize the table structure
     let table = '<table id="datman_data"><thead><tr><th>Date Time</th><th>Value</th></tr></thead><tbody>';
 
-    // Filter out the data points where the time is exactly 8:00 AM
-    const filteredData = data.filter(point => {
-        const date = new Date(point.timestamp);
-        return (date.getHours() === 8 && date.getMinutes() === 0);
-    });
-
-    // Log filtered data for debugging
-    console.log("Filtered Data: ", filteredData);
-
     // Iterate through each point in the filtered data
-    filteredData.forEach(point => {
+    data.forEach(point => {
         // Format the date based on the 'timestamp' value
         const date = new Date(point.timestamp).toLocaleString();
 
@@ -1757,4 +1912,14 @@ function addSwitchTypeLink(office, basin, cwms_ts_id, cda, type, lookback) {
 
     // Add the link to the div
     switchTypeDiv.appendChild(link);
+}
+
+function showDatmanLoad(type) {
+    const datmanLoadDiv = document.getElementById("datman_load");
+
+    if (type === "loading") {
+        datmanLoadDiv.style.display = "block"; // Show the div when loading
+    } else {
+        datmanLoadDiv.style.display = "none"; // Hide the div when not loading
+    }
 }
