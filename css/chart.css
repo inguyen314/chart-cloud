@@ -79,7 +79,7 @@ canvas {
     width: 24%;
 }
 
-#data_table_3 {
+#data_table_datman_load {
     width: 24%;
 }
 
@@ -182,4 +182,51 @@ form.modern-form button:hover,
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
+}
+/*** ===================================================================================== ***/
+/*** TABLE DATA ***/
+/*** ===================================================================================== ***/
+#datman_data {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 100px;
+}
+
+#datman_data th {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: left;
+    background-color: darkblue;
+    color: white;
+    border: 1px solid #ddd;
+    padding: 5px;
+    text-align: center;
+}
+
+#datman_data td a {
+    text-decoration: none;
+}
+
+#datman_data th a {
+    color: black;
+    text-decoration: none;
+}
+
+#datman_data td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+#datman_data td a:hover,
+#datman_data th a:hover {
+    text-decoration: underline;
+}
+
+#datman_data tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#datman_data tr:hover {
+    background-color: #ddd;
 }

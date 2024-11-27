@@ -149,7 +149,7 @@
                                             <script>
                                                 document.addEventListener('DOMContentLoaded', () => {
                                                     // console.log("basin inside gage_control_02", basin);
-                                                    if (type === "editing") {
+                                                    if (type === "editing" || type === "loading") {
                                                         initializeBasinDropdownDataEditing(basin, office, type);
                                                     } else {
                                                         initializeBasinDropdown(basin, office);
@@ -174,11 +174,21 @@
                                         </script>
                                     </div>
 
+                                    <div id="switchType">
+                                        <script>
+                                            if (type) {
+                                                document.addEventListener('DOMContentLoaded', () => {
+                                                    addSwitchTypeLink(office, basin, cwms_ts_id, cda, type, lookback);
+                                                });
+                                            }
+                                        </script>
+                                    </div>
+
                                     <!-- data table -->
                                     <div class="gage_control_container">
                                         <div id="data_table"></div>
                                         <div id="data_table_datman"></div>
-                                        <div id="data_table_3"></div>
+                                        <div id="data_table_datman_load"><button id="loadDatmanButton">Load Datman Data</button></div>
                                         <div id="data_table_4"></div>
                                     </div>
                                 </div>

@@ -379,8 +379,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         const floodLevel = getFloodLevel(floodLevelTimeSeries);
 
                         if (type === "loading") {
-                            console.log("series: ", (series));
-                            console.log("series: ", (series[0][`data`]));
+                            // console.log("series: ", (series));
+                            // console.log("series: ", (series[0][`data`]));
 
                             const _data = series[0][`data`];
 
@@ -389,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 value: entry.y,
                             }));
 
-                            console.log(convertedData);
+                            console.log("convertedData: ", convertedData);
 
                             // Create Datman Table
                             document.getElementById('data_table_datman').innerHTML = createTableDatman(convertedData, floodLevel);
@@ -562,6 +562,28 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Error fetching data:', error);
             loadingIndicator.style.display = 'none';
         });
+
+    // Attach the click event listener to the button
+    document.getElementById('loadDatmanButton').addEventListener('click', function () {
+        // Extract data from the table when the button is clicked
+        const table = document.getElementById('datman_data');
+        const data = [];
+
+        // Loop through the rows and extract the Date Time and Value columns
+        for (let i = 1; i < table.rows.length; i++) { // Start from 1 to skip the header
+            const row = table.rows[i];
+            const rowData = {
+                dateTime: row.cells[0].innerText,  // Extract Date Time
+                value: parseFloat(row.cells[1].innerText) // Extract Value and convert to number
+            };
+            data.push(rowData);
+        }
+
+        console.log(data);
+
+        // Call the function to save the data
+        // saveDatmanData(data);
+    });
 });
 
 function plotData(datasets, lookback) {
@@ -1047,7 +1069,7 @@ function createTableDatman(data, floodLevel) {
     data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     // Initialize the table structure
-    let table = '<table id="gage_data"><thead><tr><th>Date Time</th><th>Value</th></tr></thead><tbody>';
+    let table = '<table id="datman_data"><thead><tr><th>Date Time</th><th>Value</th></tr></thead><tbody>';
 
     // Filter out the data points where the time is exactly 8:00 AM
     const filteredData = data.filter(point => {
@@ -1691,4 +1713,48 @@ function updateCdaLinks(office, basin, cwms_ts_id, cda) {
         url.search = params.toString(); // Update the search params
         anchor.setAttribute('href', url.toString()); // Set new URL to anchor
     });
+}
+
+function addSwitchTypeLink(office, basin, cwms_ts_id, cda, type, lookback) {
+    // Find the div element by its ID
+    const switchTypeDiv = document.getElementById('switchType');
+
+    // Create a new anchor (link) element
+    const link = document.createElement('a');
+
+    // Set initial text, href, and style based on the current API type
+    if (type === 'editing') {
+        // If on Public API, set text to switch to Internal API and background to green
+        link.textContent = "Switch to Loading";
+        link.href = "index.html?" + "office=" + office + "&basin=" + basin + "&lookback=" + lookback + "&cwms_ts_id=" + cwms_ts_id + "&cda=internal&type=loading";
+        link.style.backgroundColor = "#4CAF50";  // Green background
+    } else {
+        // If on Internal API, set text to switch to Public API and background to dark blue
+        link.textContent = "Switch to Editing";
+        link.href = "index.html?" + "office=" + office + "&basin=" + basin + "&lookback=" + lookback + "&cwms_ts_id=" + cwms_ts_id + "&cda=internal&type=editing";
+        link.style.backgroundColor = "darkblue";  // Dark blue background
+    }
+
+    // Apply other inline CSS to style it as a modern button
+    link.style.display = "inline-block";
+    link.style.padding = "10px 20px";
+    link.style.color = "white";
+    link.style.textAlign = "center";
+    link.style.textDecoration = "none";
+    link.style.borderRadius = "5px";
+    link.style.fontSize = "16px";
+    link.style.transition = "background-color 0.3s";
+    link.style.marginBottom = "20px";  // Set margin bottom to 20px
+
+    // Add a hover effect
+    link.onmouseover = function () {
+        link.style.backgroundColor = "#45a049"; // Hover effect - green color on hover
+    };
+    link.onmouseout = function () {
+        // Reset background color based on the current API type
+        link.style.backgroundColor = type === 'editing' ? "#4CAF50" : "darkblue";  // Green for Internal API, dark blue for Public API
+    };
+
+    // Add the link to the div
+    switchTypeDiv.appendChild(link);
 }
