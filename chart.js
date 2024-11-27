@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     loadingIndicator.style.display = 'block';
 
     // How loading option
-    showDatmanLoad(type);
+    showDatmanLoad(type, cwms_ts_id_2);
 
     // Define your tsids
     const tsids = [
@@ -1943,10 +1943,10 @@ function addSwitchTypeLink(office, basin, cwms_ts_id, cda, type, lookback) {
     switchTypeDiv.appendChild(link);
 }
 
-function showDatmanLoad(type) {
+function showDatmanLoad(type, cwms_ts_id_2) {
     const datmanLoadDiv = document.getElementById("datman_load");
 
-    if (type === "loading") {
+    if (type === "loading" && cwms_ts_id_2 === null) {
         datmanLoadDiv.style.display = "block"; // Show the div when loading
     } else {
         datmanLoadDiv.style.display = "none"; // Hide the div when not loading
