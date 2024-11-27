@@ -372,7 +372,13 @@ document.addEventListener('DOMContentLoaded', function () {
                             }
                         ].filter(series => series);
 
-                        if (type) {
+                        // Create Chart JS
+                        plotData(series, lookback);
+
+                        // Get flood level
+                        const floodLevel = getFloodLevel(floodLevelTimeSeries);
+
+                        if (type === "loading") {
                             console.log("series: ", (series));
                             console.log("series: ", (series[0][`data`]));
 
@@ -385,24 +391,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             console.log(convertedData);
 
-                            const filteredData = convertedData.filter(item => {
-                                const date = new Date(item.timestamp);
-                                return date.getHours() === 8 && date.getMinutes() === 0;
-                            });
-
-                            console.log(filteredData);
-
                             // Create Datman Table
-                            document.getElementById('data_table_datman').innerHTML = createTableDatman(filteredData);
+                            document.getElementById('data_table_datman').innerHTML = createTableDatman(convertedData, floodLevel);
                         }
-
-
-
-                        // Create Chart JS
-                        plotData(series, lookback);
-
-                        // Get flood level
-                        const floodLevel = getFloodLevel(floodLevelTimeSeries);
 
                         // Create Data Table
                         document.getElementById('data_table').innerHTML = createTable(series, floodLevel); // floodLevelTimeSeries[0].y
@@ -1041,6 +1032,48 @@ function createTable(data, floodLevel) {
         table += `<tr>
                     <td>${date}</td>
                     <td style="color: ${exceedFloodLevel ? 'red' : 'inherit'}">${formattedValue}</td>
+                  </tr>`;
+    });
+
+    // Close the table structure
+    table += '</tbody></table>';
+
+    // Return the complete HTML table
+    return table;
+}
+
+function createTableDatman(data, floodLevel) {
+    // Sort data by timestamp in descending order
+    data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    // Initialize the table structure
+    let table = '<table id="gage_data"><thead><tr><th>Date Time</th><th>Value</th></tr></thead><tbody>';
+
+    // Filter out the data points where the time is exactly 8:00 AM
+    const filteredData = data.filter(point => {
+        const date = new Date(point.timestamp);
+        return (date.getHours() === 8 && date.getMinutes() === 0);
+    });
+
+    // Log filtered data for debugging
+    console.log("Filtered Data: ", filteredData);
+
+    // Iterate through each point in the filtered data
+    filteredData.forEach(point => {
+        // Format the date based on the 'timestamp' value
+        const date = new Date(point.timestamp).toLocaleString();
+
+        let formattedValue = null;
+        if (point.value !== null) {
+            formattedValue = point.value.toFixed(2); // Formatting the value
+        } else {
+            formattedValue = 'N/A';
+        }
+
+        // Construct the table row
+        table += `<tr>
+                    <td>${date}</td>
+                    <td>${formattedValue}</td>
                   </tr>`;
     });
 

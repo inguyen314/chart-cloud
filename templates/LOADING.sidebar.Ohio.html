@@ -1,0 +1,45 @@
+							<link rel="stylesheet" href="../../../css/sidebar.css"/>
+							<div id="leftPane" class="col-md-3 backend-cp-fixed" style="width: 22em;">
+								<div class="box-usace">
+									<h2 class="box-header-striped">
+										<span class="title">Ohio</span>
+										<span class="rss"></span>
+									</h2>
+									<div id="ContentPane" class="box-content">
+										<div id="dnn_ctr2497_ModuleContent" class="DNNModuleContent ModAccordionMenuC">
+											<div id="dnn_ctr2497_View_AccordionContainer" class="AccordionContainer">
+												<div class="ac-jump-menu-wrapper ac-hide ac-show-mobile-only">
+													<div class="ac-jump-menu-success alert alert-success">
+														<i class="fas fa-spinner fa-spin"></i>Redirecting...
+													</div>
+													<select class="ac-jump-menu" id="mobilejumpmenu">
+														<option data-new-window="False" value="">Select...</option>
+														<option data-new-window="False" value="/reports">My Reports</option>
+                                                        <option data-new-window="False" value="/gages">My Gages</option>
+													</select>
+												</div>
+												<ul class="acAccordionMenuPlotMacros acResponsive ac-hide ac-hide-mobile-only ">
+													<li class="usaceAccordionMenuListItem">
+														<div class="usaceAccordionRootNode">
+															<div class="lvl0 listItem">
+																<a href="index.html?basin=Tributaries&office=MVS&type=editing&lookback=30&cwms_ts_id=Cairo-Ohio.Elev.Inst.1Hour.0.lrgsShef-rev" target="_self" tabindex="0">
+																	Cairo-Ohio</a>
+															</div>
+														</div>
+													</li>
+												</ul>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<script defer>
+								const mobilejumpmenu=document.getElementById("mobilejumpmenu");
+								mobilejumpmenu.addEventListener("change", function(){
+									let url=this.value
+									window.location=url
+								});
+							</script>
+							<script>
+								updateCdaLinks(office, basin, cwms_ts_id, cda);
+							</script>

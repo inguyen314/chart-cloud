@@ -17,7 +17,8 @@
     <link rel="stylesheet" href="css/sidebar.css" />
     <!-- Include Moment.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
     <!-- Include the Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Include the Moment.js adapter for Chart.js -->
@@ -174,8 +175,12 @@
                                     </div>
 
                                     <!-- data table -->
-                                    <div id="data_table"></div>
-                                    <div id="data_table_datman"></div>
+                                    <div class="gage_control_container">
+                                        <div id="data_table"></div>
+                                        <div id="data_table_datman"></div>
+                                        <div id="data_table_3"></div>
+                                        <div id="data_table_4"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -239,6 +244,30 @@
                     $('#sidebar').load('templates/DATA_EDITING.sidebar.Salt.html');
                 } else if (basin === "St Francis") {
                     $('#sidebar').load('templates/DATA_EDITING.sidebar.StFrancis.html');
+                } else {
+                    // $('#sidebar').load('templates/DISTRICT.sidebar.html');
+                }
+            } else if (type === "loading") {
+                if (basin === "Big Muddy") {
+                    $('#sidebar').load('templates/LOADING.sidebar.BigMuddy.html');
+                } else if (basin === "Cuivre") {
+                    $('#sidebar').load('templates/LOADING.sidebar.Cuivre.html');
+                } else if (basin === "Illinois") {
+                    $('#sidebar').load('templates/LOADING.sidebar.Illinois.html');
+                } else if (basin === "Kaskaskia") {
+                    $('#sidebar').load('templates/LOADING.sidebar.Kaskaskia.html');
+                } else if (basin === "Meramec") {
+                    $('#sidebar').load('templates/LOADING.sidebar.Meramec.html');
+                } else if (basin === "Mississippi") {
+                    $('#sidebar').load('templates/LOADING.sidebar.Mississippi.html');
+                } else if (basin === "Missouri") {
+                    $('#sidebar').load('templates/LOADING.sidebar.Missouri.html');
+                } else if (basin === "Ohio") {
+                    $('#sidebar').load('templates/LOADING.sidebar.Ohio.html');
+                } else if (basin === "Salt") {
+                    $('#sidebar').load('templates/LOADING.sidebar.Salt.html');
+                } else if (basin === "St Francis") {
+                    $('#sidebar').load('templates/LOADING.sidebar.StFrancis.html');
                 } else {
                     // $('#sidebar').load('templates/DISTRICT.sidebar.html');
                 }
