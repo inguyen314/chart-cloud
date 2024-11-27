@@ -372,7 +372,31 @@ document.addEventListener('DOMContentLoaded', function () {
                             }
                         ].filter(series => series);
 
-                        // console.log("series: ", (series));
+                        if (type) {
+                            console.log("series: ", (series));
+                            console.log("series: ", (series[0][`data`]));
+
+                            const _data = series[0][`data`];
+
+                            const convertedData = _data.map(entry => ({
+                                timestamp: new Date(entry.x).toString(), // Converts the Unix timestamp to a readable format
+                                value: entry.y,
+                            }));
+
+                            console.log(convertedData);
+
+                            const filteredData = convertedData.filter(item => {
+                                const date = new Date(item.timestamp);
+                                return date.getHours() === 8 && date.getMinutes() === 0;
+                            });
+
+                            console.log(filteredData);
+
+                            // Create Datman Table
+                            document.getElementById('data_table_datman').innerHTML = createTableDatman(filteredData);
+                        }
+
+
 
                         // Create Chart JS
                         plotData(series, lookback);
