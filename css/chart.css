@@ -71,20 +71,23 @@ canvas {
     background-color: #ddd;
 }
 
+/*** ===================================================================================== ***/
+/*** GAGE CONTROL CONTAINER ***/
+/*** ===================================================================================== ***/
 #data_table {
-    width: 24%;
+    width: 25%;
 }
 
 #data_table_datman {
-    width: 24%;
+    width: 25%;
 }
 
-#data_table_datman_load {
-    width: 24%;
+#datman_load {
+    width: 15%;
 }
 
-#data_table_4 {
-    width: 24%;
+#data_table_extent {
+    width: 35%;
 }
 
 /*** ===================================================================================== ***/
@@ -228,5 +231,53 @@ form.modern-form button:hover,
 }
 
 #datman_data tr:hover {
+    background-color: #ddd;
+}
+
+/*** ===================================================================================== ***/
+/*** TABLE DATA ***/
+/*** ===================================================================================== ***/
+#extent {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 100px;
+}
+
+#extent th {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: left;
+    background-color: darkblue;
+    color: white;
+    border: 1px solid #ddd;
+    padding: 5px;
+    text-align: center;
+}
+
+#extent td a {
+    text-decoration: none;
+}
+
+#extent th a {
+    color: black;
+    text-decoration: none;
+}
+
+#extent td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+#extent td a:hover,
+#extent th a:hover {
+    text-decoration: underline;
+}
+
+#extent tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#extent tr:hover {
     background-color: #ddd;
 }

@@ -145,12 +145,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 const url4 = `${baseUrl}/levels/${levelIdLwrp}?office=${office}&effective-date=${levelIdEffectiveDate}&unit=ft`;
                 const url5 = `${baseUrl}/locations/${locationId}?office=${office}`;
                 const url6 = `${baseUrl}/levels/${levelIdNgvd29}?office=${office}&effective-date=${levelIdEffectiveDate}&unit=ft`;
+                const url7 = `${baseUrl}/catalog/TIMESERIES?page-size=5000&office=${office}`;
                 // console.log('url1:', url1);
                 // console.log('url2:', url2);
                 // console.log('url3:', url3);
                 // console.log('url4:', url4);
                 // console.log('url5:', url5);
                 // console.log('url6:', url6);
+                console.log('url7:', url7);
 
                 // Fetch the related data
                 Promise.all([
@@ -225,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         // console.error('Error fetching data from url5:', error);
                         return null; // Return null if fetch failed
                     }),
+
                     fetch(url6).then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
@@ -233,10 +236,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     }).catch(error => {
                         // console.error('Error fetching data from url6:', error);
                         return null; // Return null if fetch failed
+                    }),
+
+                    fetch(url7).then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    }).catch(error => {
+                        // console.error('Error fetching data from url7:', error);
+                        return null; // Return null if fetch failed
                     })
+
                 ])
                     .then(metaDataArray => {
-                        // console.log('metaDataArray:', metaDataArray);
+                        console.log('metaDataArray:', metaDataArray);
 
                         const floodLevelData = metaDataArray[0];
                         const hingeMinData = metaDataArray[1];
@@ -406,17 +420,45 @@ document.addEventListener('DOMContentLoaded', function () {
                             console.log("cwms_ts_id: ", cwms_ts_id);
                             const parts = cwms_ts_id.split('.');
                             // Reassemble the first two parts
-                            const extracted = `${parts[0]}`;
-                            console.log('Extracted part: ', extracted);
+                            const extractedLocationId = `${parts[0]}`;
+                            console.log('extractedLocationId: ', extractedLocationId);
 
-                            const extractedVersion = `${parts[5]}`;
-                            console.log('extractedVersion: ', extractedVersion);
+                            const extractedVersionId = `${parts[5]}`;
+                            console.log('extractedVersionId: ', extractedVersionId);
 
                             let parameterDatman = null;
-                            if (extractedVersion === "29") {
+                            if (extractedVersionId === "29") {
                                 parameterDatman = "Elev";
                             } else {
                                 parameterDatman = "Stage";
+                            }
+
+                            const extentData = metaDataArray[6];
+                            console.log("extentData: ", extentData);
+
+                            const payloadTsid = `${extractedLocationId}.${parameterDatman}.Inst.~1Day.0.datman-rev`;
+                            console.log("payloadTsid: ", payloadTsid);
+
+                            function findMatchingEntry(payloadTsid, extentData) {
+                                // Loop through the entries array to find the matching name
+                                for (const entry of extentData.entries) {
+                                    if (entry.name === payloadTsid) {
+                                        return entry; // Return the matching entry
+                                    }
+                                }
+                                // Return null if no match is found
+                                return null;
+                            }
+
+                            const result = findMatchingEntry(payloadTsid, extentData);
+
+                            if (result) {
+                                console.log("Matching entry found:", result);
+
+                                // Call the function to render the table
+                                displaySingleColumnTable(result);
+                            } else {
+                                console.log("No matching entry found for", payloadTsid);
                             }
 
                             // Filter the values to leave them as null if they are null or greater than 999
@@ -435,10 +477,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                 ];
                             });
                             console.log("filteredValues: ", filteredValues);
-                            
+
 
                             payload = {
-                                "name": `${extracted}.${parameterDatman}.Inst.~1Day.0.datman-rev`,
+                                "name": `${extractedLocationId}.${parameterDatman}.Inst.~1Day.0.datman-rev`,
                                 "office-id": "MVS",
                                 "units": "ft",
                                 "values": filteredValues
@@ -456,7 +498,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 cdaBtn.disabled = true
                                 if (await isLoggedIn()) {
                                     // Variables / attributes of the element/dom
-                                    cdaBtn.innerText = "Save"
+                                    cdaBtn.innerText = "Save Datman"
                                 } else {
                                     cdaBtn.innerText = "Login"
                                 }
@@ -586,7 +628,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
 
                         // Create Data Table
-                        document.getElementById('data_table').innerHTML = createTable(series, floodLevel); // floodLevelTimeSeries[0].y
+                        document.getElementById('data_table').innerHTML = createTable(series, floodLevel);
 
                         // Location Data
                         // console.log("locationData: ", locationData);
@@ -1262,7 +1304,7 @@ function createTableDatman(data, floodLevel) {
     data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     // Initialize the table structure
-    let table = '<table id="datman_data"><thead><tr><th>Datman Date Time</th><th>Value</th></tr></thead><tbody>';
+    let table = '<table id="datman_data"><thead><tr><th>Date Time</th><th>Value</th></tr></thead><tbody>';
 
     // Iterate through each point in the filtered data
     data.forEach(point => {
@@ -1735,7 +1777,7 @@ function initializeBasinDropdownDataEditing(basin, office, type) {
                 "Missouri": "St Charles-Missouri.Elev.Inst.30Minutes.0.lrgsShef-rev",
                 "Mississippi": "St Louis-Mississippi.Elev.Inst.30Minutes.0.lrgsShef-rev",
                 "St Francis": "Iron Bridge-St Francis.Elev.Inst.30Minutes.0.lrgsShef-rev",
-                "Salt": "Wappapello Lk-St Francis.Elev.Inst.30Minutes.0.lrgsShef-rev",
+                "Salt": "Norton Bridge-Salt.Elev.Inst.15Minutes.0.lrgsShef-rev",
                 "Ohio": "Cairo-Ohio.Elev.Inst.1Hour.0.lrgsShef-rev",
             };
 
@@ -1951,4 +1993,49 @@ function showDatmanLoad(type, cwms_ts_id_2) {
     } else {
         datmanLoadDiv.style.display = "none"; // Hide the div when not loading
     }
+}
+
+function formatDate(isoString) {
+    const date = new Date(isoString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+}
+
+function displaySingleColumnTable(data) {
+    const container = document.getElementById("data_table_extent");
+
+    // Create a table element
+    const table = document.createElement("table");
+    table.id = "extent";
+
+    // Add rows for each required field
+    const rows = [
+        { label: "Office", value: data.office },
+        { label: "Name", value: data.name },
+        { label: "Earliest Time", value: formatDate(data.extents[0]["earliest-time"]) },
+        { label: "Latest Time", value: formatDate(data.extents[0]["latest-time"]) } // Format Latest Time
+    ];
+
+    rows.forEach(rowData => {
+        // Add the label row (th)
+        const labelRow = document.createElement("tr");
+        const labelCell = document.createElement("th");
+        labelCell.textContent = rowData.label;
+        labelRow.appendChild(labelCell);
+        table.appendChild(labelRow);
+
+        // Add the value row (td)
+        const valueRow = document.createElement("tr");
+        const valueCell = document.createElement("td");
+        valueCell.textContent = rowData.value;
+        valueRow.appendChild(valueCell);
+        table.appendChild(valueRow);
+    });
+
+    // Append the table to the container
+    container.appendChild(table);
 }
