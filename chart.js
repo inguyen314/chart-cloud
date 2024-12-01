@@ -390,6 +390,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             }
                         ].filter(series => series);
 
+                        console.log("series: ", series);
+
                         // Create Chart JS
                         plotData(series, lookback);
 
@@ -827,7 +829,7 @@ function plotData(datasets, lookback) {
 
     // Extract unique parameter IDs for creating multiple y-axes, excluding null and undefined
     const uniqueParameterIds = [...new Set(datasets.map(item => item.parameter_id).filter(id => id != null))];
-    // console.log('uniqueParameterIds:', uniqueParameterIds);
+    console.log('uniqueParameterIds:', uniqueParameterIds);
 
     // Create a mapping for unique parameter IDs to 'y0' and 'y1'
     const parameterIdToYAxis = {};
@@ -860,13 +862,14 @@ function plotData(datasets, lookback) {
         minY = initialMinMax.minY;
         maxY = initialMinMax.maxY;
     } else {
-        const initialMinMaxDual = getInitialMinMaxYDualAxis2(datasets, uniqueParameterIds); // Implement getInitialMinMaxYDualAxis2 function if not already defined
+        console.log("set minY and maxY for dual axis");
+        const initialMinMaxDual = getInitialMinMaxYDualAxis2(datasets, uniqueParameterIds, type); // Implement getInitialMinMaxYDualAxis2 function if not already defined
         minY = initialMinMaxDual.minY;
         maxY = initialMinMaxDual.maxY;
     }
 
-    // console.log('minY:', minY);
-    // console.log('maxY:', maxY);
+    console.log('minY:', minY);
+    console.log('maxY:', maxY);
 
     // Create y-axes configuration dynamically if there are unique parameter IDs
     let yScales = {};
@@ -1599,43 +1602,32 @@ function processDataAndDisplay(datasets) {
     `;
 }
 
-function getInitialMinMaxYDualAxis2(datasets, uniqueParameterIds) {
+function getInitialMinMaxYDualAxis2(datasets, uniqueParameterIds, type) {
+    // console.log("datasets: ", datasets);
+    // console.log("uniqueParameterIds: ", uniqueParameterIds);
+    // console.log("type: ", type);
+
     let minY = { y0: Infinity, y1: Infinity };
     let maxY = { y0: -Infinity, y1: -Infinity };
 
     datasets.forEach((dataset, datasetIndex) => {
         if (!dataset.data || !Array.isArray(dataset.data)) {
-            // console.log(`Dataset ${datasetIndex} has no valid data array.`);
             return;
         }
 
         dataset.data.forEach((point, pointIndex) => {
             if (typeof point.y !== 'number') {
-                // console.log(`Point ${pointIndex} in dataset ${datasetIndex} has an invalid y value: ${point.y}`);
                 return;
             }
 
-            const yAxisID = dataset.yAxisID;
+            const yAxisID = dataset.parameter_id;
+
             if (yAxisID === uniqueParameterIds[0]) {
-                if (point.y < minY.y0) {
-                    minY.y0 = point.y;
-                    // console.log(`Updated minY.y0 at dataset ${datasetIndex}, point ${pointIndex}: ${minY.y0}`);
-                }
-                if (point.y > maxY.y0) {
-                    maxY.y0 = point.y;
-                    // console.log(`Updated maxY.y0 at dataset ${datasetIndex}, point ${pointIndex}: ${maxY.y0}`);
-                }
+                if (point.y < minY.y0) minY.y0 = point.y;
+                if (point.y > maxY.y0) maxY.y0 = point.y;
             } else if (yAxisID === uniqueParameterIds[1]) {
-                if (point.y < minY.y1) {
-                    minY.y1 = point.y;
-                    // console.log(`Updated minY.y1 at dataset ${datasetIndex}, point ${pointIndex}: ${minY.y1}`);
-                }
-                if (point.y > maxY.y1) {
-                    maxY.y1 = point.y;
-                    // console.log(`Updated maxY.y1 at dataset ${datasetIndex}, point ${pointIndex}: ${maxY.y1}`);
-                }
-            } else {
-                // console.log(`Dataset ${datasetIndex}, point ${pointIndex} has an invalid yAxisID: ${yAxisID}`);
+                if (point.y < minY.y1) minY.y1 = point.y;
+                if (point.y > maxY.y1) maxY.y1 = point.y;
             }
         });
     });
@@ -1646,8 +1638,17 @@ function getInitialMinMaxYDualAxis2(datasets, uniqueParameterIds) {
     if (maxY.y0 === -Infinity) maxY.y0 = null;
     if (maxY.y1 === -Infinity) maxY.y1 = null;
 
-    // console.log('Final minY:', minY);
-    // console.log('Final maxY:', maxY);
+    // Handle type === "loading"
+    if (type === "loading") {
+        const globalMinY = Math.min(minY.y0 ?? Infinity, minY.y1 ?? Infinity);
+        const globalMaxY = Math.max(maxY.y0 ?? -Infinity, maxY.y1 ?? -Infinity);
+
+        minY = { y0: globalMinY, y1: globalMinY };
+        maxY = { y0: globalMaxY, y1: globalMaxY };
+    }
+
+    console.log('Final minY:', minY);
+    console.log('Final maxY:', maxY);
 
     return { minY, maxY };
 }
