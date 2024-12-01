@@ -1643,8 +1643,8 @@ function getInitialMinMaxYDualAxis2(datasets, uniqueParameterIds, type) {
         const globalMinY = Math.min(minY.y0 ?? Infinity, minY.y1 ?? Infinity);
         const globalMaxY = Math.max(maxY.y0 ?? -Infinity, maxY.y1 ?? -Infinity);
 
-        minY = { y0: globalMinY, y1: globalMinY };
-        maxY = { y0: globalMaxY, y1: globalMaxY };
+        minY = { y0: globalMinY - 0.5, y1: globalMinY - 0.5 };
+        maxY = { y0: globalMaxY + 0.5, y1: globalMaxY + 0.5 };
     }
 
     console.log('Final minY:', minY);
