@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Map each dataset to its corresponding URL
     const timeseriesUrl = validTsids.map(data => {
         const queryString = data.cwms_ts_id; // Assuming this is correct
-        return `${baseUrl}/timeseries?page-size=8000&name=${queryString}&begin=${currentDateTimeMinusLookBackDays.toISOString()}&end=${currentDateTimeAddLookForwardDays.toISOString()}&office=${office}`;
+        return `${baseUrl}/timeseries?page-size=40000&name=${queryString}&begin=${currentDateTimeMinusLookBackDays.toISOString()}&end=${currentDateTimeAddLookForwardDays.toISOString()}&office=${office}`;
     });
     // console.log("timeseriesUrl = ", timeseriesUrl);
 
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const url4 = `${baseUrl}/levels/${levelIdLwrp}?office=${office}&effective-date=${levelIdEffectiveDate}&unit=ft`;
                 const url5 = `${baseUrl}/locations/${locationId}?office=${office}`;
                 const url6 = `${baseUrl}/levels/${levelIdNgvd29}?office=${office}&effective-date=${levelIdEffectiveDate}&unit=ft`;
-                const url7 = `${baseUrl}/catalog/TIMESERIES?page-size=5000&office=${office}`;
+                const url7 = `${baseUrl}/catalog/TIMESERIES?page-size=10000&office=${office}`;
                 // console.log('url1:', url1);
                 // console.log('url2:', url2);
                 // console.log('url3:', url3);
