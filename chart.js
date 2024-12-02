@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // console.log('url4:', url4);
                 // console.log('url5:', url5);
                 // console.log('url6:', url6);
-                console.log('url7:', url7);
+                // console.log('url7:', url7);
 
                 // Fetch the related data
                 Promise.all([
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 ])
                     .then(metaDataArray => {
-                        console.log('metaDataArray:', metaDataArray);
+                        // console.log('metaDataArray:', metaDataArray);
 
                         const floodLevelData = metaDataArray[0];
                         const hingeMinData = metaDataArray[1];
@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Get flood level
                         const floodLevel = getFloodLevel(floodLevelTimeSeries);
 
-                        if (type === "loading") {
+                        if (type === "loading" && loading === null) {
                             // console.log("series: ", (series));
                             // console.log("series: ", (series[0][`data`]));
 
@@ -496,6 +496,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             const statusBtn = document.querySelector(".status");
                             const cdaBtn = document.getElementById("cda-btn");
 
+                            const statusBtnDelete = document.querySelector(".status_delete");
+                            const cdaBtnDelete = document.getElementById("cda-delete-btn");
+
                             async function loginStateController() {
                                 cdaBtn.disabled = true
                                 if (await isLoggedIn()) {
@@ -505,6 +508,17 @@ document.addEventListener('DOMContentLoaded', function () {
                                     cdaBtn.innerText = "Login"
                                 }
                                 cdaBtn.disabled = false
+                            }
+
+                            async function loginStateControllerDelete() {
+                                cdaBtnDelete.disabled = true
+                                if (await isLoggedIn()) {
+                                    // Variables / attributes of the element/dom
+                                    cdaBtnDelete.innerText = "Delete Datman"
+                                } else {
+                                    cdaBtnDelete.innerText = "Login"
+                                }
+                                cdaBtnDelete.disabled = false
                             }
 
                             async function loginCDA() {
@@ -564,38 +578,60 @@ document.addEventListener('DOMContentLoaded', function () {
                                 }
                             }
 
-                            async function deleteTS(payload) {
-                                if (!payload) throw new Error("You must specify a payload!");
-
-                                try {
-                                    const response = await fetch("https://wm.mvs.ds.usace.army.mil/mvs-data/timeseries?store-rule=REPLACE%20ALL", {
-                                        method: "POST",
+                            async function deleteTS(payloadDelete) {
+                                // Log the input payloadDelete and check if it's an array
+                                console.log("payloadDelete =", payloadDelete);
+                            
+                                // Throw an error if payloadDelete is not specified
+                                if (!payloadDelete) throw new Error("You must specify a payloadDelete!");
+                            
+                                // If payloadDelete is not an array, convert it to an array
+                                if (!Array.isArray(payloadDelete)) {
+                                    payloadDelete = [payloadDelete];
+                                }
+                            
+                                // Create an array of promises to handle multiple payloads
+                                let promises = payloadDelete.map(ts_payload => {
+                                    // Ensure payload attributes are correctly referenced, with computed property for 'office-id'
+                                    const { name, ['office-id']: officeId, values } = ts_payload;
+                            
+                                    // Check if the values array is present and has at least one entry
+                                    if (!values || values.length === 0) {
+                                        return { message: "No values provided", status: "invalid_data" };
+                                    }
+                            
+                                    // Extract the begin and end timestamps from the values array
+                                    const begin = new Date(values[0][0]);  // first timestamp in values
+                                    const end = new Date(values[values.length - 1][0]);  // last timestamp in values
+                            
+                                    return fetch(`https://wm.mvs.ds.usace.army.mil/mvs-data/timeseries/${name}?office=${officeId}&begin=${begin.toISOString()}&end=${end.toISOString()}`, {
+                                        method: "DELETE",
                                         headers: {
                                             "accept": "*/*",
                                             "Content-Type": "application/json;version=2",
                                         },
-
-
-                                        body: JSON.stringify(payload)
+                                        // body: JSON.stringify(ts_payload) // Not needed for DELETE requests
+                                    }).then(async r => {
+                                        // Get the response message and status
+                                        const message = await r.text();
+                                        const status = r.status;
+                                        return { message, status };
+                                    }).catch(error => {
+                                        // Handle fetch errors
+                                        return { message: error.message, status: 'fetch_error' };
                                     });
-
-                                    if (!response.ok) {
-                                        const errorText = await response.text();
-                                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-                                    }
-
-                                    // const data = await response.json();
-                                    // console.log('Success:', data);
-                                    // return data;
-                                    return true;
-
-                                } catch (error) {
-                                    console.error('Error writing timeseries:', error);
-                                    throw error;
-                                }
+                                });
+                            
+                                // Wait for all promises to resolve
+                                const return_values = await Promise.all(promises);
+                                console.log("Return values from deleteTS:", return_values);
+                            
+                                // Check for errors based on status and message content
+                                const has_errors = return_values.some(v => v.status !== 200 || v.message.includes("error") || v.message.includes("fail"));
+                                return has_errors;
                             }
 
-                            console.log("payload to save: ", payload);
+                            console.log("payload to save/delete: ", payload);
 
                             // Page Start
                             cdaBtn.onclick = async () => {
@@ -619,14 +655,40 @@ document.addEventListener('DOMContentLoaded', function () {
                                 }
                             };
 
-                            loginStateController()
+                            cdaBtnDelete.onclick = async () => {
+                                if (cdaBtnDelete.innerText === "Login") {
+                                    const loginResult = await loginCDA();
+                                    console.log({ loginResult });
+                                    if (loginResult) {
+                                        cdaBtnDelete.innerText = "Submit";
+                                    } else {
+                                        statusBtnDelete.innerText = "Failed to Login!";
+                                    }
+                                } else {
+                                    try {
+                                        // Delete timeseries to CDA
+                                        console.log("Delete!");
+                                        await deleteTS(payload);
+                                        statusBtnDelete.innerText = "Delete successful!";
+                                    } catch (error) {
+                                        statusBtnDelete.innerText = "Failed to delete data!";
+                                    }
+                                }
+                            };
+
+                            loginStateController();
+                            loginStateControllerDelete();
+
                             // Setup timers
                             setInterval(async () => {
                                 loginStateController()
+                                loginStateControllerDelete()
                             }, 10000) // time is in millis
 
                             // Create Datman Table
                             document.getElementById('data_table_datman').innerHTML = createTableDatman(filteredData, floodLevel);
+                        } else if (type === "loading" && loading === "basin") {
+                            console.log("Calling loading all gages in a basin.");
                         }
 
                         // Create Data Table
@@ -796,31 +858,6 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Error fetching data:', error);
             loadingIndicator.style.display = 'none';
         });
-
-
-    //************************************************/
-    // Attach the click event listener to the button
-    // ***********************************************/ 
-    document.getElementById('loadDatmanButton').addEventListener('click', function () {
-        // Extract data from the table when the button is clicked
-        const table = document.getElementById('datman_data');
-        const data = [];
-
-        // Loop through the rows and extract the Date Time and Value columns
-        for (let i = 1; i < table.rows.length; i++) { // Start from 1 to skip the header
-            const row = table.rows[i];
-            const rowData = {
-                dateTime: row.cells[0].innerText,  // Extract Date Time
-                value: parseFloat(row.cells[1].innerText) // Extract Value and convert to number
-            };
-            data.push(rowData);
-        }
-
-        console.log(data);
-
-        // Call the function to save the data
-        // saveDatmanData(data);
-    });
 });
 
 function plotData(datasets, lookback) {

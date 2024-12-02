@@ -62,10 +62,12 @@
                                         var office = urlParams.get('office');
                                         var lookforward = urlParams.get('lookforward') || '0';
                                         var type = urlParams.get('type');
+                                        var loading = urlParams.get('loading');
 
                                         console.log("type: ", type);
                                         console.log("basin: ", basin);
                                         console.log("lookback: ", lookback);
+                                        console.log("loading: ", loading);
 
                                         // Extract text before the first period
                                         const cwms_ts_id_before_period = cwms_ts_id.split('.')[0];
@@ -203,6 +205,8 @@
                                             </button> -->
                                             <div class="status"></div>
                                             <button id="cda-btn" disabled>Login Save</button>
+
+                                            <div class="status_delete"></div>
                                             <button id="cda-delete-btn" disabled>Login Delete</button>
                                         </div>
                                         <div id="data_table_extent"></div>
