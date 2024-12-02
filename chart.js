@@ -399,6 +399,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         const floodLevel = getFloodLevel(floodLevelTimeSeries);
 
                         if (type === "loading" && loading === null) {
+                            // *****************************************
+                            // Load datman data to cwms
+                            // *****************************************
+
                             // console.log("series: ", (series));
                             // console.log("series: ", (series[0][`data`]));
 
@@ -684,6 +688,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                 loginStateController()
                                 loginStateControllerDelete()
                             }, 10000) // time is in millis
+
+                            // *****************************************
+                            // Load datman data to datman schema
+                            // *****************************************
 
                             // Create Datman Table
                             document.getElementById('data_table_datman').innerHTML = createTableDatman(filteredData, floodLevel);
