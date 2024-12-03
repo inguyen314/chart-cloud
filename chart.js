@@ -760,7 +760,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     console.log("append payload for datman schema to save/delete: ", updatedPayload);
 
                                     // Wait for the operation to complete
-                                    await datmanLoading(updatedPayload);
+                                    datmanLoading(updatedPayload);
 
                                     // Update the UI on success
                                     statusDatman.innerText = "Write Datman schema successful!";
