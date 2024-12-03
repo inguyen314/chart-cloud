@@ -77,8 +77,8 @@ function saveDataToOracle($data)
     $host = 'coe-mvsuwd04mvs.mvs.usace.army.mil';
     $port = '1521';
     $serviceName = 'B3CWMSP1';
-    $dbUser = 'b3weba18';
-    $dbPassword = 'y-Aj8_2Ra3=j^eB';
+    $dbUser = 'wm_mvs_datman';
+    $dbPassword = 'Oct_Oct_Oct_632';
 
     // Construct the Oracle connection string
     $dbConnection = "(DESCRIPTION =
@@ -86,20 +86,22 @@ function saveDataToOracle($data)
         (CONNECT_DATA = (SERVICE_NAME = $serviceName))
     )";
 
+    error_log("data: " . $data);
+
     try {
         // Log the start of the Oracle connection process
         error_log("Attempting to connect to Oracle...");
-
+    
         // Connect to the Oracle database
         $conn = oci_connect($dbUser, $dbPassword, $dbConnection);
         if (!$conn) {
             $e = oci_error();
             throw new Exception('Failed to connect to Oracle: ' . $e['message']);
         }
-
+    
         error_log("Oracle connection successful.");
-
-        // Prepare the SQL statement for inserting data
+    
+        // Prepare the SQL statement for inserting data with formatted date
         $sql = "INSERT INTO wm_mvs_datman.DATMAN_POR_BACKUP (
                     TS_CODE,
                     DATA_ENTRY_DATE,
@@ -110,18 +112,20 @@ function saveDataToOracle($data)
                     DMQ_CODE
                 ) VALUES (
                     :ts_code,
-                    TO_DATE(:data_entry_date, 'YYYY-MM-DD'),
-                    TO_DATE(:date_time, 'YYYY-MM-DD HH24:MI:SS'),
+                    TO_DATE(:data_entry_date, 'DD-MON-YY'),
+                    TO_DATE(:date_time, 'DD-MON-YY'),
                     :value,
                     :quality,
                     :ts_partition,
                     :dmq_code
                 )";
-
+    
         $stmt = oci_parse($conn, $sql);
-
+    
         // Insert each row in the 'values' array
         foreach ($data['values'] as $row) {
+        
+            // Bind the parameters
             oci_bind_by_name($stmt, ':ts_code', $row[0]);
             oci_bind_by_name($stmt, ':data_entry_date', $row[1]);
             oci_bind_by_name($stmt, ':date_time', $row[2]);
@@ -129,23 +133,23 @@ function saveDataToOracle($data)
             oci_bind_by_name($stmt, ':quality', $row[4]);
             oci_bind_by_name($stmt, ':ts_partition', $row[5]);
             oci_bind_by_name($stmt, ':dmq_code', $row[6]);
-
+        
             // Execute the query
             $result = oci_execute($stmt, OCI_NO_AUTO_COMMIT);
             if (!$result) {
                 $e = oci_error($stmt);
-                throw new Exception('Failed to execute query: ' . $e['message']);
+                error_log("Error executing query: " . $e['message']);
             }
-        }
-
+        }        
+    
         // Commit the transaction
         oci_commit($conn);
         error_log("Data successfully committed to Oracle.");
-
+    
         // Free the statement and close the connection
         oci_free_statement($stmt);
         oci_close($conn);
-
+    
         return ["status" => "success", "message" => "Data saved successfully"];
     } catch (Exception $e) {
         // Roll back the transaction in case of an error
@@ -153,8 +157,8 @@ function saveDataToOracle($data)
             oci_rollback($conn);
             oci_close($conn);
         }
-
+    
         error_log("Error in saveDataToOracle: " . $e->getMessage());
         return ["status" => "error", "message" => $e->getMessage()];
-    }
+    }    
 }

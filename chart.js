@@ -398,6 +398,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Get flood level
                         const floodLevel = getFloodLevel(floodLevelTimeSeries);
 
+                        let payload = null;
+
                         if (type === "loading" && loading === null) {
                             // *****************************************
                             // Load datman data to cwms
@@ -695,38 +697,18 @@ document.addEventListener('DOMContentLoaded', function () {
                             // *****************************************
                             // Load datman data to datman schema
                             // *****************************************
-                            const datmanPayload = payload;
+                            let datmanPayload = payload;
+                            console.log("datmanPayload: ", datmanPayload);
 
                             const tsCode = [
                                 { name: "Champion City-Bourbeuse.Stage.Inst.~1Day.0.datman-rev", tscode: 936413018 },
                                 { name: "Byrnesville-Big.Stage.Inst.~1Day.0.datman-rev", tscode: 45070018 }
                             ];
                             console.log("tsCode: ", tsCode);
-                            console.log("payload for datman schema to save/delete: ", datmanPayload);
 
                             // Match the name and get the corresponding tscode
                             const match = tsCode.find(ts => ts.name === datmanPayload.name);
-
-                            if (match) {
-                                const tscode = match.tscode;
-
-                                // Helper function to format timestamp
-                                const formatDate = (timestamp) => {
-                                    const date = new Date(timestamp);
-                                    const day = String(date.getUTCDate()).padStart(2, '0');
-                                    const month = date.toLocaleString('en-US', { month: 'short' }).toUpperCase();
-                                    const year = String(date.getUTCFullYear()).slice(-2);
-                                    return `${day}-${month}-${year}`;
-                                };
-
-                                // Prepend tscode and format timestamps
-                                datmanPayload.values = datmanPayload.values.map(([timestamp, ...rest]) => {
-                                    const formattedDate = formatDate(timestamp);
-                                    return [tscode, "02-DEC-24", formattedDate, ...rest, null, null];
-                                });
-                            }
-
-                            console.log("append payload for datman schema to save/delete: ", datmanPayload);
+                            console.log("match: ", match);
 
                             async function datmanLoading(datmanPayload) {
                                 if (!datmanPayload) throw new Error("You must specify a payload!");
@@ -734,7 +716,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 try {
                                     // Log the payload for debugging
                                     console.log("datmanPayload being sent to the server: ", datmanPayload);
-                                    console.log(JSON.stringify(datmanPayload));
+                                    // console.log(JSON.stringify(datmanPayload));
 
                                     // Make an HTTP POST request to the PHP function
                                     const response = await fetch('chart.php', {
@@ -742,6 +724,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify(datmanPayload), // Send the payload as a JSON string
                                     });
+
+                                    // console.log("response: ", response);
 
                                     // Log the raw HTTP response for debugging
                                     console.log("HTTP Response status: ", response.status);
@@ -770,8 +754,13 @@ document.addEventListener('DOMContentLoaded', function () {
                                 try {
                                     console.log("Attempting to write Datman schema...");
 
+                                    console.log("datmanPayload onclick: ", datmanPayload);
+
+                                    const updatedPayload = processDatmanPayload(datmanPayload, match);
+                                    console.log("append payload for datman schema to save/delete: ", updatedPayload);
+
                                     // Wait for the operation to complete
-                                    await datmanLoading(datmanPayload);
+                                    await datmanLoading(updatedPayload);
 
                                     // Update the UI on success
                                     statusDatman.innerText = "Write Datman schema successful!";
@@ -2173,4 +2162,66 @@ function displaySingleColumnTable(data) {
 
     // Append the table to the container
     container.appendChild(table);
+}
+
+function processDatmanPayload(datmanPayload, match) {
+    if (!match || !datmanPayload || !datmanPayload.values) {
+        throw new Error("Invalid input: match or datmanPayload is missing or malformed.");
+    }
+
+    const tscode = match.tscode;
+
+    // Helper function to format a timestamp into a Date object (properly handling timezone)
+    const formatDate = (timestamp) => {
+        const date = new Date(timestamp); // Convert timestamp to Date object
+        return new Date(date); // Don't use UTC if timestamp is local
+    };
+
+    // Helper function to format date into 'dd-MMM-yy' (e.g., '03-DEC-24')
+    const formatDateString = (date) => {
+        const day = date.getUTCDate().toString().padStart(2, '0'); // Ensure 2-digit day
+        const month = date.toLocaleString('en-US', { month: 'short' }).toUpperCase(); // Get month in uppercase
+        const year = date.getUTCFullYear().toString().slice(-2); // Get last 2 digits of year
+
+        return `${day}-${month}-${year}`;
+    };
+
+    // Helper function to get the current date in Central Time and format it as 'dd-MMM-yy'
+    const getCentralDate = () => {
+        const now = new Date();
+
+        // Use Intl.DateTimeFormat to get Central Time date and offset
+        const centralTimeFormatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/Chicago',
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+        });
+
+        // Parse formatted date string into components
+        const formattedDateParts = centralTimeFormatter.formatToParts(now);
+        const year = parseInt(formattedDateParts.find((part) => part.type === 'year').value, 10);
+        const month = parseInt(formattedDateParts.find((part) => part.type === 'month').value, 10) - 1; // Months are 0-indexed
+        const day = parseInt(formattedDateParts.find((part) => part.type === 'day').value, 10);
+
+        // Return a new Date object for the Central Time date
+        const fixedDate = new Date(year, month, day);
+
+        // Format fixedDate to 'dd-MMM-yy'
+        return formatDateString(fixedDate);
+    };
+
+    const fixedDate = getCentralDate();
+
+    // Prepend tscode and convert timestamps to formatted date strings
+    datmanPayload.values = datmanPayload.values.map(([timestamp, ...rest]) => {
+        const formattedDate = formatDate(timestamp);
+        const formattedDateStr = formatDateString(formattedDate);
+        return [tscode, fixedDate, formattedDateStr, ...rest, null, null];
+    });
+
+    return datmanPayload;
 }
