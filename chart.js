@@ -503,6 +503,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             const statusBtnDelete = document.querySelector(".status_delete");
                             const cdaBtnDelete = document.getElementById("cda-delete-btn");
 
+                            const statusDatman = document.querySelector(".datman_status");
+                            const datmanBtn = document.getElementById("datman");
+
                             async function loginStateController() {
                                 cdaBtn.disabled = true
                                 if (await isLoggedIn()) {
@@ -585,29 +588,29 @@ document.addEventListener('DOMContentLoaded', function () {
                             async function deleteTS(payloadDelete) {
                                 // Log the input payloadDelete and check if it's an array
                                 console.log("payloadDelete =", payloadDelete);
-                            
+
                                 // Throw an error if payloadDelete is not specified
                                 if (!payloadDelete) throw new Error("You must specify a payloadDelete!");
-                            
+
                                 // If payloadDelete is not an array, convert it to an array
                                 if (!Array.isArray(payloadDelete)) {
                                     payloadDelete = [payloadDelete];
                                 }
-                            
+
                                 // Create an array of promises to handle multiple payloads
                                 let promises = payloadDelete.map(ts_payload => {
                                     // Ensure payload attributes are correctly referenced, with computed property for 'office-id'
                                     const { name, ['office-id']: officeId, values } = ts_payload;
-                            
+
                                     // Check if the values array is present and has at least one entry
                                     if (!values || values.length === 0) {
                                         return { message: "No values provided", status: "invalid_data" };
                                     }
-                            
+
                                     // Extract the begin and end timestamps from the values array
                                     const begin = new Date(values[0][0]);  // first timestamp in values
                                     const end = new Date(values[values.length - 1][0]);  // last timestamp in values
-                            
+
                                     return fetch(`https://wm.mvs.ds.usace.army.mil/mvs-data/timeseries/${name}?office=${officeId}&begin=${begin.toISOString()}&end=${end.toISOString()}`, {
                                         method: "DELETE",
                                         headers: {
@@ -625,11 +628,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                         return { message: error.message, status: 'fetch_error' };
                                     });
                                 });
-                            
+
                                 // Wait for all promises to resolve
                                 const return_values = await Promise.all(promises);
                                 console.log("Return values from deleteTS:", return_values);
-                            
+
                                 // Check for errors based on status and message content
                                 const has_errors = return_values.some(v => v.status !== 200 || v.message.includes("error") || v.message.includes("fail"));
                                 return has_errors;
@@ -692,6 +695,92 @@ document.addEventListener('DOMContentLoaded', function () {
                             // *****************************************
                             // Load datman data to datman schema
                             // *****************************************
+                            const datmanPayload = payload;
+
+                            const tsCode = [
+                                { name: "Champion City-Bourbeuse.Stage.Inst.~1Day.0.datman-rev", tscode: 936413018 },
+                                { name: "Byrnesville-Big.Stage.Inst.~1Day.0.datman-rev", tscode: 45070018 }
+                            ];
+                            console.log("tsCode: ", tsCode);
+                            console.log("payload for datman schema to save/delete: ", datmanPayload);
+
+                            // Match the name and get the corresponding tscode
+                            const match = tsCode.find(ts => ts.name === datmanPayload.name);
+
+                            if (match) {
+                                const tscode = match.tscode;
+
+                                // Helper function to format timestamp
+                                const formatDate = (timestamp) => {
+                                    const date = new Date(timestamp);
+                                    const day = String(date.getUTCDate()).padStart(2, '0');
+                                    const month = date.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+                                    const year = String(date.getUTCFullYear()).slice(-2);
+                                    return `${day}-${month}-${year}`;
+                                };
+
+                                // Prepend tscode and format timestamps
+                                datmanPayload.values = datmanPayload.values.map(([timestamp, ...rest]) => {
+                                    const formattedDate = formatDate(timestamp);
+                                    return [tscode, "02-DEC-24", formattedDate, ...rest, null, null];
+                                });
+                            }
+
+                            console.log("append payload for datman schema to save/delete: ", datmanPayload);
+
+                            async function datmanLoading(datmanPayload) {
+                                if (!datmanPayload) throw new Error("You must specify a payload!");
+
+                                try {
+                                    // Log the payload for debugging
+                                    console.log("datmanPayload being sent to the server: ", datmanPayload);
+                                    console.log(JSON.stringify(datmanPayload));
+
+                                    // Make an HTTP POST request to the PHP function
+                                    const response = await fetch('chart.php', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(datmanPayload), // Send the payload as a JSON string
+                                    });
+
+                                    // Log the raw HTTP response for debugging
+                                    console.log("HTTP Response status: ", response.status);
+
+                                    // Parse the JSON response from the server
+                                    const result = await response.json();
+
+                                    // Check if the response is okay
+                                    if (response.ok) {
+                                        console.log("Data saved successfully: ", result);
+                                        return result; // Return result if needed for further processing
+                                    } else {
+                                        // Log server-side errors
+                                        console.error("Error saving data on the server: ", result);
+                                        throw new Error(`Server error: ${result.message}`);
+                                    }
+                                } catch (error) {
+                                    // Log any unexpected errors
+                                    console.error("Error while saving timeseries: ", error.message);
+                                    throw error; // Re-throw the error for higher-level handling
+                                }
+                            }
+
+                            // Attach the click handler to the button
+                            datmanBtn.onclick = async () => {
+                                try {
+                                    console.log("Attempting to write Datman schema...");
+
+                                    // Wait for the operation to complete
+                                    await datmanLoading(datmanPayload);
+
+                                    // Update the UI on success
+                                    statusDatman.innerText = "Write Datman schema successful!";
+                                } catch (error) {
+                                    // Handle errors and update the UI
+                                    console.error("Failed to write Datman schema: ", error.message);
+                                    statusDatman.innerText = "Failed to write data!";
+                                }
+                            };
 
                             // Create Datman Table
                             document.getElementById('data_table_datman').innerHTML = createTableDatman(filteredData, floodLevel);
