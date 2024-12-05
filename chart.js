@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', function () {
         { cwms_ts_id: encodeURIComponent(cwms_ts_id_4) },
         { cwms_ts_id: encodeURIComponent(cwms_ts_id_5) },
         { cwms_ts_id: encodeURIComponent(cwms_ts_id_6) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_7) }
+        { cwms_ts_id: encodeURIComponent(cwms_ts_id_7) },
+        { cwms_ts_id: encodeURIComponent(cwms_ts_id_8) }
     ];
     // console.log("tsids = ", tsids);
 
