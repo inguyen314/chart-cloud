@@ -512,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 cdaBtn.disabled = true
                                 if (await isLoggedIn()) {
                                     // Variables / attributes of the element/dom
-                                    cdaBtn.innerText = "Save Datman"
+                                    cdaBtn.innerText = "Save Data to CWMS"
                                 } else {
                                     cdaBtn.innerText = "Login"
                                 }
@@ -664,26 +664,26 @@ document.addEventListener('DOMContentLoaded', function () {
                                 }
                             };
 
-                            cdaBtnDelete.onclick = async () => {
-                                if (cdaBtnDelete.innerText === "Login") {
-                                    const loginResult = await loginCDA();
-                                    console.log({ loginResult });
-                                    if (loginResult) {
-                                        cdaBtnDelete.innerText = "Submit";
-                                    } else {
-                                        statusBtnDelete.innerText = "Failed to Login!";
-                                    }
-                                } else {
-                                    try {
-                                        // Delete timeseries to CDA
-                                        console.log("Delete!");
-                                        await deleteTS(payload);
-                                        statusBtnDelete.innerText = "Delete successful!";
-                                    } catch (error) {
-                                        statusBtnDelete.innerText = "Failed to delete data!";
-                                    }
-                                }
-                            };
+                            // cdaBtnDelete.onclick = async () => {
+                            //     if (cdaBtnDelete.innerText === "Login") {
+                            //         const loginResult = await loginCDA();
+                            //         console.log({ loginResult });
+                            //         if (loginResult) {
+                            //             cdaBtnDelete.innerText = "Submit";
+                            //         } else {
+                            //             statusBtnDelete.innerText = "Failed to Login!";
+                            //         }
+                            //     } else {
+                            //         try {
+                            //             // Delete timeseries to CDA
+                            //             console.log("Delete!");
+                            //             await deleteTS(payload);
+                            //             statusBtnDelete.innerText = "Delete successful!";
+                            //         } catch (error) {
+                            //             statusBtnDelete.innerText = "Failed to delete data!";
+                            //         }
+                            //     }
+                            // };
 
                             loginStateController();
                             loginStateControllerDelete();
