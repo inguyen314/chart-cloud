@@ -2291,56 +2291,35 @@ function processDatmanPayload(datmanPayload, match) {
 
     const tscode = match.tscode;
 
-    // Helper function to format a timestamp into a Date object (properly handling timezone)
+    // Helper function to format a timestamp into a Date object
     const formatDate = (timestamp) => {
-        const date = new Date(timestamp); // Convert timestamp to Date object
-        return new Date(date); // Don't use UTC if timestamp is local
+        return new Date(timestamp); // Convert timestamp to Date object
     };
 
-    // Helper function to format date into 'dd-MMM-yy' (e.g., '03-DEC-24')
-    const formatDateString = (date) => {
+    // Helper function to format date into 'dd-MMM-yyyy hh24:mi' in UTC
+    const formatDateStringWithTimeUTC = (date) => {
         const day = date.getUTCDate().toString().padStart(2, '0'); // Ensure 2-digit day
-        const month = date.toLocaleString('en-US', { month: 'short' }).toUpperCase(); // Get month in uppercase
-        const year = date.getUTCFullYear().toString().slice(-2); // Get last 2 digits of year
+        const month = date.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }).toUpperCase(); // Get month in uppercase
+        const year = date.getUTCFullYear().toString(); // Full 4-digit year
+        const hours = date.getUTCHours().toString().padStart(2, '0'); // 24-hour format
+        const minutes = date.getUTCMinutes().toString().padStart(2, '0'); // 2-digit minutes
 
-        return `${day}-${month}-${year}`;
+        return `${day}-${month}-${year} ${hours}:${minutes}`;
     };
 
-    // Helper function to get the current date in Central Time and format it as 'dd-MMM-yy'
-    const getCentralDate = () => {
+    // Helper function to get the current date in UTC and format it as 'dd-MMM-yyyy hh24:mi'
+    const getUTCDateWithTime = () => {
         const now = new Date();
-
-        // Use Intl.DateTimeFormat to get Central Time date and offset
-        const centralTimeFormatter = new Intl.DateTimeFormat('en-US', {
-            timeZone: 'America/Chicago',
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-        });
-
-        // Parse formatted date string into components
-        const formattedDateParts = centralTimeFormatter.formatToParts(now);
-        const year = parseInt(formattedDateParts.find((part) => part.type === 'year').value, 10);
-        const month = parseInt(formattedDateParts.find((part) => part.type === 'month').value, 10) - 1; // Months are 0-indexed
-        const day = parseInt(formattedDateParts.find((part) => part.type === 'day').value, 10);
-
-        // Return a new Date object for the Central Time date
-        const fixedDate = new Date(year, month, day);
-
-        // Format fixedDate to 'dd-MMM-yy'
-        return formatDateString(fixedDate);
+        return formatDateStringWithTimeUTC(now);
     };
 
-    const fixedDate = getCentralDate();
+    const fixedDateWithTimeUTC = getUTCDateWithTime();
 
-    // Prepend tscode and convert timestamps to formatted date strings
+    // Prepend tscode and convert timestamps to formatted date strings with UTC time
     datmanPayload.values = datmanPayload.values.map(([timestamp, ...rest]) => {
-        const formattedDate = formatDate(timestamp);
-        const formattedDateStr = formatDateString(formattedDate);
-        return [tscode, fixedDate, formattedDateStr, ...rest, null, null];
+        const formattedDate = formatDate(timestamp); // Parse timestamp into Date object
+        const formattedDateStrWithTimeUTC = formatDateStringWithTimeUTC(formattedDate); // Format in UTC
+        return [tscode, fixedDateWithTimeUTC, formattedDateStrWithTimeUTC, ...rest, null, null];
     });
 
     return datmanPayload;

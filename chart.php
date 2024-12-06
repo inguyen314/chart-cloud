@@ -94,14 +94,14 @@ function saveDataToOracle($data)
             $e = oci_error();
             throw new Exception('Failed to connect to Oracle: ' . $e['message']);
         }
-    
+
         // SQL to check for an existing row
         $checkSql = "SELECT COUNT(*) AS count 
                      FROM wm_mvs_datman.DATMAN_POR 
                      WHERE TS_CODE = :ts_code 
-                       AND TO_CHAR(DATE_TIME, 'DD-MON-YY') = :date_time";
+                       AND TO_CHAR(DATE_TIME, 'DD-MON-YYYY HH24:MI') = :date_time";
         $checkStmt = oci_parse($conn, $checkSql);
-    
+
         // SQL to insert a new row
         $insertSql = "INSERT INTO wm_mvs_datman.DATMAN_POR (
                           TS_CODE,
@@ -113,26 +113,27 @@ function saveDataToOracle($data)
                           DMQ_CODE
                       ) VALUES (
                           :ts_code,
-                          TO_DATE(:data_entry_date, 'DD-MON-YY'),
-                          TO_DATE(:date_time, 'DD-MON-YY'),
+                          TO_DATE(:data_entry_date, 'DD-MON-YYYY HH24:MI'),
+                          TO_DATE(:date_time, 'DD-MON-YYYY HH24:MI'),
                           :value,
                           :quality,
                           :ts_partition,
                           :dmq_code
                       )";
         $insertStmt = oci_parse($conn, $insertSql);
-    
+
         // SQL to update an existing row
         $updateSql = "UPDATE wm_mvs_datman.DATMAN_POR
                       SET VALUE = :value,
                           QUALITY = :quality,
                           TS_PARTITION = :ts_partition,
                           DMQ_CODE = :dmq_code,
-                          DATA_ENTRY_DATE = TO_DATE(:data_entry_date, 'DD-MON-YY')
+                          DATA_ENTRY_DATE = TO_DATE(:data_entry_date, 'DD-MON-YYYY HH24:MI')
                       WHERE TS_CODE = :ts_code
-                        AND TO_CHAR(DATE_TIME, 'DD-MON-YY') = :date_time";
+                        AND TO_CHAR(DATE_TIME, 'DD-MON-YYYY HH24:MI') = :date_time";
         $updateStmt = oci_parse($conn, $updateSql);
-    
+
+
         // Iterate over the input data
         foreach ($data['values'] as $row) {
             $tsCode = $row[0];
@@ -142,16 +143,16 @@ function saveDataToOracle($data)
             $quality = $row[4];
             $tsPartition = $row[5];
             $dmqCode = $row[6];
-    
+
             // Check if the row already exists
             oci_bind_by_name($checkStmt, ':ts_code', $tsCode);
             oci_bind_by_name($checkStmt, ':date_time', $dateTime);
             oci_execute($checkStmt);
-    
+
             $row = oci_fetch_assoc($checkStmt);
             $existingCount = $row['COUNT'];
             error_log("Checking TS_CODE=$tsCode, DATE_TIME=$dateTime - Found $existingCount existing rows");
-    
+
             if ($existingCount > 0) {
                 if ($method === 'update') {
                     // Replace the data in the existing row
@@ -162,14 +163,14 @@ function saveDataToOracle($data)
                     oci_bind_by_name($updateStmt, ':quality', $quality);
                     oci_bind_by_name($updateStmt, ':ts_partition', $tsPartition);
                     oci_bind_by_name($updateStmt, ':dmq_code', $dmqCode);
-    
+
                     // Execute the update statement
                     $result = oci_execute($updateStmt, OCI_NO_AUTO_COMMIT);
                     if (!$result) {
                         $e = oci_error($updateStmt);
                         throw new Exception("Error updating row: " . $e['message']);
                     }
-    
+
                     error_log("Row updated: TS_CODE=$tsCode, DATE_TIME=$dateTime");
                 } else {
                     // Skip if method is 'insert'
@@ -185,27 +186,27 @@ function saveDataToOracle($data)
                 oci_bind_by_name($insertStmt, ':quality', $quality);
                 oci_bind_by_name($insertStmt, ':ts_partition', $tsPartition);
                 oci_bind_by_name($insertStmt, ':dmq_code', $dmqCode);
-    
+
                 // Insert the new row
                 $result = oci_execute($insertStmt, OCI_NO_AUTO_COMMIT);
                 if (!$result) {
                     $e = oci_error($insertStmt);
                     throw new Exception("Error inserting row: " . $e['message']);
                 }
-    
+
                 error_log("Row inserted: TS_CODE=$tsCode, DATE_TIME=$dateTime");
             }
         }
-    
+
         // Commit the transaction
         oci_commit($conn);
-    
+
         // Free resources
         oci_free_statement($checkStmt);
         oci_free_statement($insertStmt);
         oci_free_statement($updateStmt);
         oci_close($conn);
-    
+
         return ["status" => "success", "message" => "Data saved successfully"];
     } catch (Exception $e) {
         // Roll back on error
@@ -215,5 +216,5 @@ function saveDataToOracle($data)
         }
         error_log("Error in saveDataToOracle: " . $e->getMessage());
         return ["status" => "error", "message" => $e->getMessage()];
-    }    
+    }
 }
