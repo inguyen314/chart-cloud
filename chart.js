@@ -561,6 +561,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                 if (!payload) throw new Error("You must specify a payload!");
 
                                 try {
+                                    statusBtn.innerHTML = 'Saving... <img src="images/loading4.gif" width="50" height="50" alt="Loading...">';
+
                                     const response = await fetch("https://wm.mvs.ds.usace.army.mil/mvs-data/timeseries?store-rule=REPLACE%20ALL", {
                                         method: "POST",
                                         headers: {
@@ -575,6 +577,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                     if (!response.ok) {
                                         const errorText = await response.text();
                                         throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                                    } else {
+                                        statusBtn.innerText = "Write CWMS successful!";
                                     }
 
                                     // const data = await response.json();
@@ -640,60 +644,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                 const has_errors = return_values.some(v => v.status !== 200 || v.message.includes("error") || v.message.includes("fail"));
                                 return has_errors;
                             }
-
-                            console.log("payload to save/delete: ", payload);
-
-                            // Page Start
-                            cdaBtn.onclick = async () => {
-                                if (cdaBtn.innerText === "Login") {
-                                    const loginResult = await loginCDA();
-                                    console.log({ loginResult });
-                                    if (loginResult) {
-                                        cdaBtn.innerText = "Submit";
-                                    } else {
-                                        statusBtn.innerText = "Failed to Login!";
-                                    }
-                                } else {
-                                    try {
-                                        // Write timeseries to CDA
-                                        console.log("Write!");
-                                        await writeTS(payload);
-                                        statusBtn.innerText = "Write successful!";
-                                    } catch (error) {
-                                        statusBtn.innerText = "Failed to write data!";
-                                    }
-                                }
-                            };
-
-                            cdaBtnDelete.onclick = async () => {
-                                if (cdaBtnDelete.innerText === "Login") {
-                                    const loginResult = await loginCDA();
-                                    console.log({ loginResult });
-                                    if (loginResult) {
-                                        cdaBtnDelete.innerText = "Submit";
-                                    } else {
-                                        statusBtnDelete.innerText = "Failed to Login!";
-                                    }
-                                } else {
-                                    try {
-                                        // Delete timeseries to CDA
-                                        console.log("Delete!");
-                                        await deleteTS(payload);
-                                        statusBtnDelete.innerText = "Delete successful!";
-                                    } catch (error) {
-                                        statusBtnDelete.innerText = "Failed to delete data!";
-                                    }
-                                }
-                            };
-
-                            loginStateController();
-                            loginStateControllerDelete();
-
-                            // Setup timers
-                            setInterval(async () => {
-                                loginStateController()
-                                loginStateControllerDelete()
-                            }, 10000) // time is in millis
 
                             // *****************************************
                             // Load datman data to datman schema
@@ -832,64 +782,133 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             async function datmanLoading(datmanPayload) {
                                 if (!datmanPayload) throw new Error("You must specify a payload!");
-
+                            
                                 try {
+                                    // Indicate that the process is ongoing
+                                    statusDatman.innerHTML = 'Saving... <img src="images/loading4.gif" width="50" height="50" alt="Loading...">';
+                            
                                     // Log the payload for debugging
                                     console.log("datmanPayload being sent to the server: ", datmanPayload);
-                                    // console.log(JSON.stringify(datmanPayload));
-
+                            
                                     // Make an HTTP POST request to the PHP function
                                     const response = await fetch('chart.php', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify(datmanPayload), // Send the payload as a JSON string
                                     });
-
-                                    // console.log("response: ", response);
-
+                            
                                     // Log the raw HTTP response for debugging
                                     console.log("HTTP Response status: ", response.status);
-
+                            
                                     // Parse the JSON response from the server
                                     const result = await response.json();
-
+                            
                                     // Check if the response is okay
                                     if (response.ok) {
                                         console.log("Data saved successfully: ", result);
+                                        statusDatman.innerText = "Write Datman successful!";
                                         return result; // Return result if needed for further processing
                                     } else {
                                         // Log server-side errors
                                         console.error("Error saving data on the server: ", result);
+                                        statusDatman.innerText = "Failed to write data to Datman!";
                                         throw new Error(`Server error: ${result.message}`);
                                     }
                                 } catch (error) {
                                     // Log any unexpected errors
                                     console.error("Error while saving timeseries: ", error.message);
+                                    statusDatman.innerText = "Failed to write data to Datman!";
                                     throw error; // Re-throw the error for higher-level handling
                                 }
                             }
 
-                            // Attach the click handler to the button
-                            datmanBtn.onclick = async () => {
-                                try {
-                                    console.log("Attempting to write Datman schema...");
+                            console.log("payload to save/delete: ", payload);
 
-                                    console.log("datmanPayload onclick: ", datmanPayload);
-
-                                    const updatedPayload = processDatmanPayload(datmanPayload, match);
-                                    console.log("append payload for datman schema to save/delete: ", updatedPayload);
-
-                                    // Wait for the operation to complete
-                                    datmanLoading(updatedPayload);
-
-                                    // Update the UI on success
-                                    statusDatman.innerText = "Write Datman schema successful!";
-                                } catch (error) {
-                                    // Handle errors and update the UI
-                                    console.error("Failed to write Datman schema: ", error.message);
-                                    statusDatman.innerText = "Failed to write data!";
+                            cdaBtn.onclick = async () => {
+                                if (cdaBtn.innerText === "Login") {
+                                    const loginResult = await loginCDA();
+                                    console.log({ loginResult });
+                                    if (loginResult) {
+                                        cdaBtn.innerText = "Submit";
+                                    } else {
+                                        statusBtn.innerText = "Failed to Login!";
+                                    }
+                                } else {
+                                    try {
+                                        // Write timeseries to CWMS via CDA
+                                        console.log("Attempting to write CWMS schema...");
+                                        await writeTS(payload);
+                                        // statusBtn.innerText = "Write CWMS successful!";
+                                    } catch (error) {
+                                        statusBtn.innerText = "Failed to write data to CWMS!";
+                                    }
+                            
+                                    try {
+                                        // Write timeseries to Datman via PHP
+                                        console.log("Attempting to write Datman schema...");
+                                        const updatedPayloadForDatman = processDatmanPayload(datmanPayload, match);
+                                        console.log("updatedPayloadForDatman: ", updatedPayloadForDatman);
+                            
+                                        datmanLoading(updatedPayloadForDatman);
+                            
+                                        // Update the UI on success (already handled in datmanLoading)
+                                    } catch (error) {
+                                        // Handle errors (already handled in datmanLoading)
+                                    }
                                 }
                             };
+
+                            cdaBtnDelete.onclick = async () => {
+                                if (cdaBtnDelete.innerText === "Login") {
+                                    const loginResult = await loginCDA();
+                                    console.log({ loginResult });
+                                    if (loginResult) {
+                                        cdaBtnDelete.innerText = "Submit";
+                                    } else {
+                                        statusBtnDelete.innerText = "Failed to Login!";
+                                    }
+                                } else {
+                                    try {
+                                        // Delete timeseries to CDA
+                                        console.log("Delete!");
+                                        await deleteTS(payload);
+                                        statusBtnDelete.innerText = "Delete successful!";
+                                    } catch (error) {
+                                        statusBtnDelete.innerText = "Failed to delete data!";
+                                    }
+                                }
+                            };
+
+                            loginStateController();
+                            loginStateControllerDelete();
+
+                            // Setup timers
+                            setInterval(async () => {
+                                loginStateController()
+                                loginStateControllerDelete()
+                            }, 10000) // time is in millis
+
+                            // // Attach the click handler to the button
+                            // datmanBtn.onclick = async () => {
+                            //     try {
+                            //         console.log("Attempting to write Datman schema...");
+
+                            //         console.log("datmanPayload onclick: ", datmanPayload);
+
+                            //         const updatedPayloadForDatman = processDatmanPayload(datmanPayload, match);
+                            //         console.log("append payload for datman schema to save/delete: ", updatedPayloadForDatman);
+
+                            //         // Wait for the operation to complete
+                            //         datmanLoading(updatedPayloadForDatman);
+
+                            //         // Update the UI on success
+                            //         statusDatman.innerText = "Write Datman schema successful!";
+                            //     } catch (error) {
+                            //         // Handle errors and update the UI
+                            //         console.error("Failed to write Datman schema: ", error.message);
+                            //         statusDatman.innerText = "Failed to write data!";
+                            //     }
+                            // };
 
                             // Create Datman Table
                             document.getElementById('data_table_datman').innerHTML = createTableDatman(filteredData, floodLevel);
