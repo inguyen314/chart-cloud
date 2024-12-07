@@ -1,0 +1,21 @@
+DROP TABLE DATMAN_POR PURGE;
+
+CREATE TABLE DATMAN_POR AS
+SELECT * FROM DATMAN_POR_BACKUP; // 23-NOV-2024
+
+
+select ts_code
+    ,(cwms_util.change_timezone(data_entry_date, 'UTC', 'CST6CDT')) as data_entry_date
+    ,(cwms_util.change_timezone(date_time, 'UTC', 'CST6CDT')) as date_time
+    ,value
+    ,quality
+    ,ts_partition
+    ,dmq_code
+from datman_por
+where ts_code in (select ts_code from cwms_v_ts_id 
+where location_id = 'St Francis-St Francis' and version_id = 'datman-rev')
+order by date_time desc;
+
+alter session set NLS_DATE_FORMAT='mm-dd-yyyy hh24:mi';
+
+tail -50 /wm/mvs/wm_web/var/apache2/2.4/logs/php_errors.log

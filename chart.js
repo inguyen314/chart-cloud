@@ -2044,6 +2044,71 @@ function initializeBasinDropdownDataEditing(basin, office, type) {
                 "Ohio": "Cairo-Ohio.Elev.Inst.1Hour.0.lrgsShef-rev",
             };
 
+            const selectedTsis = basinMap[selectedBasin] || "St Louis-Mississippi.Elev.Inst.30Minutes.0.lrgsShef-rev";
+            const newUrl = `?office=${office}&type=${type}&basin=${selectedBasin}&cwms_ts_id=${selectedTsis}&lookback=30`;
+            window.location.href = newUrl;
+        });
+    }
+}
+
+function initializeBasinDropdownDataLoading(basin, office, type) {
+    if (basin !== null) {
+        const basins = [
+            "Big Muddy",
+            "Cuivre",
+            "Illinois",
+            "Kaskaskia",
+            "Meramec",
+            "Mississippi",
+            "Missouri",
+            "Ohio",
+            "Salt",
+            "St Francis"
+        ];
+
+        const container = document.getElementById('gage_control_02');
+        if (!container) {
+            console.error('Container with id "gage_control_02" not found');
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="basin-dropdown-container">
+                <label for="basinDropdown" class="dropdown-label">Select a Basin</label>
+                <select id="basinDropdown" class="basin-dropdown">
+                    ${basins.map(item => `<option value="${item}">${item}</option>`).join('')}
+                </select>
+                <button id="submitButton" class="submit-button">Submit</button>
+            </div>
+        `;
+
+        const dropdown = document.getElementById('basinDropdown');
+        const submitButton = document.getElementById('submitButton');
+
+        const getQueryParameter = (name) => {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        };
+
+        const selectedBasin = getQueryParameter('basin') || basin;
+        if (selectedBasin) dropdown.value = selectedBasin;
+
+        submitButton.addEventListener('click', () => {
+            const selectedBasin = dropdown.value;
+
+            const basinMap = {
+                "Big Muddy": "Rend Lk-Big Muddy.Stage.Inst.30Minutes.0.29",
+                "Cuivre": "Troy-Cuivre.Stage.Inst.15Minutes.0.lrgsShef-rev",
+                "Illinois": "Meredosia-Illinois.Stage.Inst.30Minutes.0.lrgsShef-rev",
+                "Meramec": "Eureka-Meramec.Stage.Inst.30Minutes.0.lrgsShef-rev",
+                "Kaskaskia": "Venedy Station-Kaskaskia.Stage.Inst.15Minutes.0.lrgsShef-rev",
+                "Missouri": "St Charles-Missouri.Stage.Inst.30Minutes.0.lrgsShef-rev",
+                "Mississippi": "St Louis-Mississippi.Stage.Inst.30Minutes.0.lrgsShef-rev",
+                "St Francis": "Iron Bridge-St Francis.Stage.Inst.30Minutes.0.lrgsShef-rev",
+                "Salt": "Norton Bridge-Salt.Stage.Inst.15Minutes.0.lrgsShef-rev",
+                "Ohio": "Cairo-Ohio.Stage.Inst.1Hour.0.lrgsShef-rev",
+            };
+
             const selectedTsis = basinMap[selectedBasin] || "St Louis-Mississippi.Stage.Inst.30Minutes.0.lrgsShef-rev";
             const newUrl = `?office=${office}&type=${type}&basin=${selectedBasin}&cwms_ts_id=${selectedTsis}&lookback=30`;
             window.location.href = newUrl;
@@ -2205,6 +2270,40 @@ function updateCdaLinks(office, basin, cwms_ts_id, cda) {
 }
 
 function addSwitchTypeLink(office, basin, cwms_ts_id, cda, type, lookback) {
+    // Define basinMaps for different types
+    const basinMaps = {
+        loading: {
+            "Big Muddy": "Rend Lk-Big Muddy.Elev.Inst.30Minutes.0.lrgsShef-rev",
+            "Cuivre": "Troy-Cuivre.Elev.Inst.15Minutes.0.lrgsShef-rev",
+            "Illinois": "Meredosia-Illinois.Elev.Inst.30Minutes.0.lrgsShef-rev",
+            "Meramec": "Eureka-Meramec.Elev.Inst.30Minutes.0.lrgsShef-rev",
+            "Kaskaskia": "Venedy Station-Kaskaskia.Elev.Inst.15Minutes.0.lrgsShef-rev",
+            "Missouri": "St Charles-Missouri.Elev.Inst.30Minutes.0.lrgsShef-rev",
+            "Mississippi": "St Louis-Mississippi.Elev.Inst.30Minutes.0.lrgsShef-rev",
+            "St Francis": "Iron Bridge-St Francis.Elev.Inst.30Minutes.0.lrgsShef-rev",
+            "Salt": "Norton Bridge-Salt.Elev.Inst.15Minutes.0.lrgsShef-rev",
+            "Ohio": "Cairo-Ohio.Elev.Inst.1Hour.0.lrgsShef-rev",
+        },
+        editing: {
+            "Big Muddy": "Rend Lk-Big Muddy.Stage.Inst.30Minutes.0.29",
+            "Cuivre": "Troy-Cuivre.Stage.Inst.15Minutes.0.lrgsShef-rev",
+            "Illinois": "Meredosia-Illinois.Stage.Inst.30Minutes.0.lrgsShef-rev",
+            "Meramec": "Eureka-Meramec.Stage.Inst.30Minutes.0.lrgsShef-rev",
+            "Kaskaskia": "Venedy Station-Kaskaskia.Stage.Inst.15Minutes.0.lrgsShef-rev",
+            "Missouri": "St Charles-Missouri.Stage.Inst.30Minutes.0.lrgsShef-rev",
+            "Mississippi": "St Louis-Mississippi.Stage.Inst.30Minutes.0.lrgsShef-rev",
+            "St Francis": "Iron Bridge-St Francis.Stage.Inst.30Minutes.0.lrgsShef-rev",
+            "Salt": "Norton Bridge-Salt.Stage.Inst.15Minutes.0.lrgsShef-rev",
+            "Ohio": "Cairo-Ohio.Stage.Inst.1Hour.0.lrgsShef-rev",
+        }
+    };
+
+    // Get the corresponding basinMap for the current type
+    const currentBasinMap = type === 'editing' ? basinMaps.editing : basinMaps.loading;
+
+    // Update the `cwms_ts_id` based on the basin
+    const updatedCwmsTsId = currentBasinMap[basin] || cwms_ts_id;
+
     // Find the div element by its ID
     const switchTypeDiv = document.getElementById('switchType');
 
@@ -2215,13 +2314,13 @@ function addSwitchTypeLink(office, basin, cwms_ts_id, cda, type, lookback) {
     if (type === 'editing') {
         // If on Public API, set text to switch to Internal API and background to green
         link.textContent = "Switch to Loading";
-        link.href = "index.html?" + "office=" + office + "&basin=" + basin + "&lookback=" + lookback + "&cwms_ts_id=" + cwms_ts_id + "&cda=internal&type=loading";
-        link.style.backgroundColor = "#4CAF50";  // Green background
+        link.href = `index.html?office=${office}&basin=${basin}&lookback=${lookback}&cwms_ts_id=${updatedCwmsTsId}&cda=internal&type=loading`;
+        link.style.backgroundColor = "#4CAF50"; // Green background
     } else {
         // If on Internal API, set text to switch to Public API and background to dark blue
         link.textContent = "Switch to Editing";
-        link.href = "index.html?" + "office=" + office + "&basin=" + basin + "&lookback=" + lookback + "&cwms_ts_id=" + cwms_ts_id + "&cda=internal&type=editing";
-        link.style.backgroundColor = "darkblue";  // Dark blue background
+        link.href = `index.html?office=${office}&basin=${basin}&lookback=${lookback}&cwms_ts_id=${updatedCwmsTsId}&cda=internal&type=editing`;
+        link.style.backgroundColor = "darkblue"; // Dark blue background
     }
 
     // Apply other inline CSS to style it as a modern button
@@ -2233,7 +2332,7 @@ function addSwitchTypeLink(office, basin, cwms_ts_id, cda, type, lookback) {
     link.style.borderRadius = "5px";
     link.style.fontSize = "16px";
     link.style.transition = "background-color 0.3s";
-    link.style.marginBottom = "20px";  // Set margin bottom to 20px
+    link.style.marginBottom = "20px"; // Set margin bottom to 20px
 
     // Add a hover effect
     link.onmouseover = function () {
@@ -2241,7 +2340,7 @@ function addSwitchTypeLink(office, basin, cwms_ts_id, cda, type, lookback) {
     };
     link.onmouseout = function () {
         // Reset background color based on the current API type
-        link.style.backgroundColor = type === 'editing' ? "#4CAF50" : "darkblue";  // Green for Internal API, dark blue for Public API
+        link.style.backgroundColor = type === 'editing' ? "#4CAF50" : "darkblue"; // Green for Internal API, dark blue for Public API
     };
 
     // Add the link to the div
