@@ -436,7 +436,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             console.log('extractedVersionId: ', extractedVersionId);
 
                             let parameterDatman = null;
-                            if (extractedVersionId === "29") {
+                            if (extractedVersionId === "29" || extractedLocationId === "Pump Sta 1-Wood River E Alton") {
                                 parameterDatman = "Elev";
                             } else {
                                 parameterDatman = "Stage";
