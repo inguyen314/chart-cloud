@@ -144,6 +144,18 @@ function saveDataToOracle($data)
             $tsPartition = $row[5];
             $dmqCode = $row[6];
 
+            // Skip rows where value is null
+            if (is_null($value)) {
+                error_log("Skipping row with null value: TS_CODE=$tsCode, DATE_TIME=$dateTime");
+                continue;
+            }
+
+            // Skip rows where value is 0.0
+            if ($value === 0.0) {
+                error_log("Skipping row with value 0.0: TS_CODE=$tsCode, DATE_TIME=$dateTime");
+                continue;
+            }
+
             // Check if the row already exists
             oci_bind_by_name($checkStmt, ':ts_code', $tsCode);
             oci_bind_by_name($checkStmt, ':date_time', $dateTime);
