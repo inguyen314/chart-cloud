@@ -426,6 +426,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             // Log filtered data for debugging
                             console.log("filteredData: ", filteredData);
+
                             console.log("cwms_ts_id: ", cwms_ts_id);
                             const parts = cwms_ts_id.split('.');
                             // Reassemble the first two parts
@@ -782,27 +783,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             async function datmanLoading(datmanPayload) {
                                 if (!datmanPayload) throw new Error("You must specify a payload!");
-                            
+
                                 try {
                                     // Indicate that the process is ongoing
                                     statusDatman.innerHTML = 'Saving... <img src="images/loading4.gif" width="50" height="50" alt="Loading...">';
-                            
+
                                     // Log the payload for debugging
                                     console.log("datmanPayload being sent to the server: ", datmanPayload);
-                            
+
                                     // Make an HTTP POST request to the PHP function
                                     const response = await fetch('chart.php', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify(datmanPayload), // Send the payload as a JSON string
                                     });
-                            
+
                                     // Log the raw HTTP response for debugging
                                     console.log("HTTP Response status: ", response.status);
-                            
+
                                     // Parse the JSON response from the server
                                     const result = await response.json();
-                            
+
                                     // Check if the response is okay
                                     if (response.ok) {
                                         console.log("Data saved successfully: ", result);
@@ -842,15 +843,15 @@ document.addEventListener('DOMContentLoaded', function () {
                                     } catch (error) {
                                         statusBtn.innerText = "Failed to write data to CWMS!";
                                     }
-                            
+
                                     try {
                                         // Write timeseries to Datman via PHP
                                         console.log("Attempting to write Datman schema...");
                                         const updatedPayloadForDatman = processDatmanPayload(datmanPayload, match);
                                         console.log("updatedPayloadForDatman: ", updatedPayloadForDatman);
-                            
+
                                         datmanLoading(updatedPayloadForDatman);
-                            
+
                                         // Update the UI on success (already handled in datmanLoading)
                                     } catch (error) {
                                         // Handle errors (already handled in datmanLoading)
@@ -912,8 +913,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             // Create Datman Table
                             document.getElementById('data_table_datman').innerHTML = createTableDatman(filteredData, floodLevel);
-                        } else if (type === "loading" && loading === "basin") {
-                            console.log("Calling loading all gages in a basin.");
                         }
 
                         // Create Data Table
@@ -1011,10 +1010,82 @@ document.addEventListener('DOMContentLoaded', function () {
                     };
                 });
 
-                // console.log(series);
+                console.log(series);
 
                 // Plot Data
                 plotData(series, lookback);
+
+                let payload = null;
+
+                if (type === "loading" && loading === "basin") {
+                    console.log("Calling loading all gages in a basin.");
+
+                    series.forEach((location) => {
+                        console.log("Label:", location.label);
+                        console.log("Parameter ID:", location.parameter_id);
+                        console.log("Unit ID:", location.unit_id);
+                        console.log("Time Zone:", location.time_zone);
+                        console.log("Data Points:");
+
+                        const convertedData = location.data.map((entry) => ({
+                            timestamp: new Date(entry.x).toString(), // Converts the Unix timestamp to a readable format
+                            value: entry.y,
+                        }));
+
+                        console.log("convertedData: ", convertedData);
+
+                        // Filter out the data points where the time is exactly 8:00 AM
+                        const filteredData = convertedData.filter(point => {
+                            const date = new Date(point.timestamp);
+                            return (date.getHours() === 8 && date.getMinutes() === 0);
+                        });
+
+                        // Log filtered data for debugging
+                        console.log("filteredData: ", filteredData);
+
+                        console.log("cwms_ts_id: ", cwms_ts_id);
+
+                        const parts = cwms_ts_id.split('.');
+
+                        const extractedLocationId = `${parts[0]}`;
+                        console.log('extractedLocationId: ', extractedLocationId);
+
+                        const extractedVersionId = `${parts[5]}`;
+                        console.log('extractedVersionId: ', extractedVersionId);
+
+                        let parameterDatman = null;
+                        if (extractedVersionId === "29" || extractedLocationId === "Pump Sta 1-Wood River E Alton") {
+                            parameterDatman = "Elev";
+                        } else {
+                            parameterDatman = "Stage";
+                        }
+
+                        console.log("cwms_ts_id_2: ", cwms_ts_id_2);
+
+                        const parts_2 = cwms_ts_id_2.split('.');
+
+                        const extractedLocationId_2 = `${parts_2[0]}`;
+                        console.log('extractedLocationId_2: ', extractedLocationId_2);
+
+                        const extractedVersionId_2 = `${parts_2[5]}`;
+                        console.log('extractedVersionId_2: ', extractedVersionId_2);
+
+                        let parameterDatman_2 = null;
+                        if (extractedVersionId_2 === "29" || extractedLocationId_2 === "Pump Sta 1-Wood River E Alton") {
+                            parameterDatman_2 = "Elev";
+                        } else {
+                            parameterDatman_2 = "Stage";
+                        }
+
+                        const payloadTsid = `${extractedLocationId}.${parameterDatman}.Inst.~1Day.0.datman-rev`;
+                        console.log("payloadTsid: ", payloadTsid);
+
+                        const payloadTsid_2 = `${extractedLocationId_2}.${parameterDatman_2}.Inst.~1Day.0.datman-rev`;
+                        console.log("payloadTsid_2: ", payloadTsid_2);
+
+                    });
+                }
+
 
                 // Call the main function to process and display 6am data
                 processDataAndDisplay(nonEmptyDatasets);
