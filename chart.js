@@ -6,18 +6,23 @@ document.addEventListener('DOMContentLoaded', function () {
     // How loading option
     showDatmanLoad(type, cwms_ts_id_2, loading);
 
-    // Define your tsids
-    const tsids = [
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_2) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_3) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_4) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_5) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_6) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_7) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_8) }
-    ];
-    // console.log("tsids = ", tsids);
+    const tsids = [];
+
+    // Add the first cwms_ts_id without the _1 suffix
+    let cwmsTsId = cwms_ts_id;  // Use the initial cwms_ts_id value
+    if (cwmsTsId) {
+        tsids.push({ cwms_ts_id: encodeURIComponent(cwmsTsId) });
+    }
+
+    // Loop through cwms_ts_id_1 to cwms_ts_id_50
+    for (let i = 1; i <= 50; i++) {
+        cwmsTsId = window[`cwms_ts_id_${i}`];  // Dynamically access cwms_ts_id_1 to cwms_ts_id_50
+        if (cwmsTsId) {
+            tsids.push({ cwms_ts_id: encodeURIComponent(cwmsTsId) });
+        }
+    }
+
+    console.log("tsids: ", tsids);  // Logs the tsids array with all non-null cwms_ts_id values
 
     // Filter out tsids where cwms_ts_id is null or undefined
     const validTsids = tsids.filter(data => data.cwms_ts_id !== null && data.cwms_ts_id !== undefined && data.cwms_ts_id !== 'null');
@@ -1156,10 +1161,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (!Array.isArray(payloads) || payloads.length === 0) {
                             throw new Error("You must specify a non-empty array of payloads!");
                         }
-                    
+
                         try {
                             statusBtn.innerHTML = 'Saving... <img src="images/loading4.gif" width="50" height="50" alt="Loading...">';
-                    
+
+                            // Process each payload sequentially
                             for (const payload of payloads) {
                                 const response = await fetch("https://wm.mvs.ds.usace.army.mil/mvs-data/timeseries?store-rule=REPLACE%20ALL", {
                                     method: "POST",
@@ -1169,51 +1175,52 @@ document.addEventListener('DOMContentLoaded', function () {
                                     },
                                     body: JSON.stringify(payload),
                                 });
-                    
+
                                 if (!response.ok) {
                                     const errorText = await response.text();
                                     throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
                                 }
-                    
+
                                 console.log("Successfully wrote timeseries for payload:", payload);
                             }
-                    
+
+                            // Only update the status after all payloads have been processed
                             statusBtn.innerText = "Write CWMS successful for all payloads!";
                             return true;
-                    
+
                         } catch (error) {
                             console.error('Error writing timeseries:', error);
                             statusBtn.innerText = "Failed to write data to CWMS!";
                             throw error;
                         }
-                    }                    
+                    }
 
                     async function deleteTS(payloads) {
                         // Log the input payloads and check if it's an array
                         console.log("payloads =", payloads);
-                    
+
                         // Throw an error if payloads is not specified
                         if (!payloads) throw new Error("You must specify payloads!");
-                    
+
                         // If payloads is not an array, convert it to an array
                         if (!Array.isArray(payloads)) {
                             payloads = [payloads];
                         }
-                    
+
                         // Create an array of promises to handle multiple payloads
                         let promises = payloads.map(async (ts_payload) => {
                             // Ensure payloads attributes are correctly referenced
                             const { name, ['office-id']: officeId, values } = ts_payload;
-                    
+
                             // Check if the values array is present and has at least one entry
                             if (!values || values.length === 0) {
                                 return { message: "No values provided", status: "invalid_data" };
                             }
-                    
+
                             // Extract the begin and end timestamps from the values array
                             const begin = new Date(values[0][0]);  // first timestamp in values
                             const end = new Date(values[values.length - 1][0]);  // last timestamp in values
-                    
+
                             try {
                                 const response = await fetch(`https://wm.mvs.ds.usace.army.mil/mvs-data/timeseries/${name}?office=${officeId}&begin=${begin.toISOString()}&end=${end.toISOString()}`, {
                                     method: "DELETE",
@@ -1222,25 +1229,25 @@ document.addEventListener('DOMContentLoaded', function () {
                                         "Content-Type": "application/json;version=2",
                                     },
                                 });
-                    
+
                                 const message = await response.text();
                                 const status = response.status;
-                    
+
                                 return { message, status };
                             } catch (error) {
                                 // Handle fetch errors
                                 return { message: error.message, status: 'fetch_error' };
                             }
                         });
-                    
+
                         // Wait for all promises to resolve
                         const return_values = await Promise.all(promises);
                         console.log("Return values from deleteTS:", return_values);
-                    
+
                         // Check for errors based on status and message content
                         const has_errors = return_values.some(v => v.status !== 200 || v.message.includes("error") || v.message.includes("fail"));
                         return has_errors;
-                    }                    
+                    }
 
                     cdaBtn.onclick = async () => {
                         if (cdaBtn.innerText === "Login") {
