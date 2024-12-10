@@ -1043,16 +1043,32 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Log filtered data for debugging
                         console.log("filteredData: ", filteredData);
 
-                        console.log("cwms_ts_id: ", cwms_ts_id);
+                        // Filter the values to leave them as null if they are null or greater than 999
+                        const filteredValues = filteredData.map(item => {
+                            let value = item.value;
 
-                        const parts = cwms_ts_id.split('.');
+                            // Leave value as null if it is null or greater than 999
+                            if (value === null || value > 999 || value < -999) {
+                                value = null; // Set to null if value is null or greater than 999
+                            }
 
+                            return [
+                                new Date(item.timestamp).getTime(),  // Convert timestamp to Unix time (ms)
+                                value,                               // Use the value (which is null if condition is met)
+                                0                                     // Always 0 as the third element
+                            ];
+                        });
+                        console.log("filteredValues: ", filteredValues);
+
+                        // Get location and version id to determine datman parameter
+                        console.log("cwms_ts_id: ", location.label);
+                        const parts = location.label.split('.');
                         const extractedLocationId = `${parts[0]}`;
                         console.log('extractedLocationId: ', extractedLocationId);
-
                         const extractedVersionId = `${parts[5]}`;
                         console.log('extractedVersionId: ', extractedVersionId);
 
+                        // Prepare datman parameter
                         let parameterDatman = null;
                         if (extractedVersionId === "29" || extractedLocationId === "Pump Sta 1-Wood River E Alton") {
                             parameterDatman = "Elev";
@@ -1060,29 +1076,19 @@ document.addEventListener('DOMContentLoaded', function () {
                             parameterDatman = "Stage";
                         }
 
-                        console.log("cwms_ts_id_2: ", cwms_ts_id_2);
-
-                        const parts_2 = cwms_ts_id_2.split('.');
-
-                        const extractedLocationId_2 = `${parts_2[0]}`;
-                        console.log('extractedLocationId_2: ', extractedLocationId_2);
-
-                        const extractedVersionId_2 = `${parts_2[5]}`;
-                        console.log('extractedVersionId_2: ', extractedVersionId_2);
-
-                        let parameterDatman_2 = null;
-                        if (extractedVersionId_2 === "29" || extractedLocationId_2 === "Pump Sta 1-Wood River E Alton") {
-                            parameterDatman_2 = "Elev";
-                        } else {
-                            parameterDatman_2 = "Stage";
-                        }
-
+                        // Prepare payload tsids 
                         const payloadTsid = `${extractedLocationId}.${parameterDatman}.Inst.~1Day.0.datman-rev`;
                         console.log("payloadTsid: ", payloadTsid);
 
-                        const payloadTsid_2 = `${extractedLocationId_2}.${parameterDatman_2}.Inst.~1Day.0.datman-rev`;
-                        console.log("payloadTsid_2: ", payloadTsid_2);
+                        // Prepare payload data
+                        payload = {
+                            "name": `${extractedLocationId}.${parameterDatman}.Inst.~1Day.0.datman-rev`,
+                            "office-id": "MVS",
+                            "units": "ft",
+                            "values": filteredValues
+                        };
 
+                        console.log("payload: ", payload);
                     });
                 }
 
