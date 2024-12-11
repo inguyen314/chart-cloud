@@ -6,23 +6,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // How loading option
     showDatmanLoad(type, cwms_ts_id_2, loading);
 
-    const tsids = [];
-
-    // Add the first cwms_ts_id without the _1 suffix
-    let cwmsTsId = cwms_ts_id;  // Use the initial cwms_ts_id value
-    if (cwmsTsId) {
-        tsids.push({ cwms_ts_id: encodeURIComponent(cwmsTsId) });
-    }
-
-    // Loop through cwms_ts_id_1 to cwms_ts_id_50
-    for (let i = 1; i <= 50; i++) {
-        cwmsTsId = window[`cwms_ts_id_${i}`];  // Dynamically access cwms_ts_id_1 to cwms_ts_id_50
-        if (cwmsTsId) {
-            tsids.push({ cwms_ts_id: encodeURIComponent(cwmsTsId) });
-        }
-    }
-
-    console.log("tsids: ", tsids);  // Logs the tsids array with all non-null cwms_ts_id values
+    // Define your tsids
+    const tsids = [
+        { cwms_ts_id: encodeURIComponent(cwms_ts_id) },
+        { cwms_ts_id: encodeURIComponent(cwms_ts_id_2) },
+        { cwms_ts_id: encodeURIComponent(cwms_ts_id_3) },
+        { cwms_ts_id: encodeURIComponent(cwms_ts_id_4) },
+        { cwms_ts_id: encodeURIComponent(cwms_ts_id_5) },
+        { cwms_ts_id: encodeURIComponent(cwms_ts_id_6) },
+        { cwms_ts_id: encodeURIComponent(cwms_ts_id_7) },
+        { cwms_ts_id: encodeURIComponent(cwms_ts_id_8) }
+    ];
+    // console.log("tsids = ", tsids);
 
     // Filter out tsids where cwms_ts_id is null or undefined
     const validTsids = tsids.filter(data => data.cwms_ts_id !== null && data.cwms_ts_id !== undefined && data.cwms_ts_id !== 'null');
@@ -654,7 +649,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             // *****************************************
                             // Load datman data to datman schema
                             // *****************************************
-                            let datmanPayload = payload;
+                            const datmanPayload = structuredClone(payload);
+                            // let datmanPayload = payload;
                             console.log("datmanPayload: ", datmanPayload);
 
                             const tsCode = [
@@ -1024,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     console.log("Calling loading all gages in a basin.");
 
                     const payloads = [];
-                    const datmanPayloads = [];
+                    const payloadsForDatman = [];
 
                     series.forEach((location) => {
                         console.log("Label:", location.label);
@@ -1219,9 +1215,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             { name: "Waltonville-Rayse Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 76260018 },
                             { name: "Wappapello Lk-St Francis.Elev.Inst.~1Day.0.datman-rev", tscode: 44995018 }
                         ];
-                        console.log("tsCode: ", tsCode);
+                        // console.log("tsCode: ", tsCode);
 
-                        const datmanPayloads = payloads;
+                        const datmanPayloads = structuredClone(payloads);
 
                         datmanPayloads.forEach(payload => {
                             const match = tsCode.find(ts => ts.name === payload.name);
@@ -1232,61 +1228,75 @@ document.addEventListener('DOMContentLoaded', function () {
                                 console.log("No match found for: ", payload.name);
                             }
                         });
-                        console.log("datmanPayloads: ", datmanPayloads);
+                        // console.log("datmanPayloads: ", datmanPayloads);
 
                         const updatedPayloadForDatman = processDatmanPayloadWithoutMatch(datmanPayloads);
-                        console.log("updatedPayloadForDatman: ", updatedPayloadForDatman);
+                        // console.log("updatedPayloadForDatman: ", updatedPayloadForDatman);
 
+                        payloadsForDatman.push(updatedPayloadForDatman);
                     });
                     console.log("All payloads prepared: ", payloads);
+                    // console.log("All datman payloads prepared: ", payloadsForDatman);
+
+                    // Extract the last object from each array inside payloadsForDatman
+                    const extractedDatmanData = payloadsForDatman.map(group => group[group.length - 1]);
+
+                    console.log("extractedDatmanData: ", extractedDatmanData);
 
 
-                    // async function datmanLoading(datmanPayloads) {
-                    //     if (!datmanPayload) throw new Error("You must specify a payload!");
-
-                    //     try {
-                    //         // Indicate that the process is ongoing
-                    //         statusDatman.innerHTML = 'Saving... <img src="images/loading4.gif" width="50" height="50" alt="Loading...">';
-
-                    //         // Log the payload for debugging
-                    //         console.log("datmanPayload being sent to the server: ", datmanPayload);
-
-                    //         // Make an HTTP POST request to the PHP function
-                    //         const response = await fetch('chart.php', {
-                    //             method: 'POST',
-                    //             headers: { 'Content-Type': 'application/json' },
-                    //             body: JSON.stringify(datmanPayload), // Send the payload as a JSON string
-                    //         });
-
-                    //         // Log the raw HTTP response for debugging
-                    //         console.log("HTTP Response status: ", response.status);
-
-                    //         // Parse the JSON response from the server
-                    //         const result = await response.json();
-
-                    //         // Check if the response is okay
-                    //         if (response.ok) {
-                    //             console.log("Data saved successfully: ", result);
-                    //             statusDatman.innerText = "Write Datman successful!";
-                    //             return result; // Return result if needed for further processing
-                    //         } else {
-                    //             // Log server-side errors
-                    //             console.error("Error saving data on the server: ", result);
-                    //             statusDatman.innerText = "Failed to write data to Datman!";
-                    //             throw new Error(`Server error: ${result.message}`);
-                    //         }
-                    //     } catch (error) {
-                    //         // Log any unexpected errors
-                    //         console.error("Error while saving timeseries: ", error.message);
-                    //         statusDatman.innerText = "Failed to write data to Datman!";
-                    //         throw error; // Re-throw the error for higher-level handling
-                    //     }
-                    // }
-
+                    async function datmanLoading(datmanPayload) {
+                        if (!datmanPayload) throw new Error("You must specify a payload!");
+                    
+                        try {
+                            // Indicate that the process is ongoing
+                            statusDatman.innerHTML = 'Saving... <img src="images/loading4.gif" width="50" height="50" alt="Loading...">';
+                    
+                            // Log the payload for debugging
+                            console.log("datmanPayload being sent to the server: ", datmanPayload);
+                    
+                            // Loop through each data entry in the payload
+                            for (const payloadItem of datmanPayload) {
+                                // Log each payload item for debugging
+                                console.log("Processing payload item: ", payloadItem);
+                    
+                                // Make an HTTP POST request to the PHP function for each payload item
+                                const response = await fetch('chart.php', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(payloadItem), // Send the individual item as a JSON string
+                                });
+                    
+                                // Log the raw HTTP response for debugging
+                                console.log("HTTP Response status: ", response.status);
+                    
+                                // Parse the JSON response from the server
+                                const result = await response.json();
+                    
+                                // Check if the response is okay
+                                if (response.ok) {
+                                    console.log("Data saved successfully: ", result);
+                                } else {
+                                    // Log server-side errors
+                                    console.error("Error saving data on the server: ", result);
+                                    throw new Error(`Server error: ${result.message}`);
+                                }
+                            }
+                    
+                            statusDatman.innerText = "Write Datman successful!";
+                            return true; // Indicate success
+                    
+                        } catch (error) {
+                            // Log any unexpected errors
+                            console.error("Error while saving timeseries: ", error.message);
+                            statusDatman.innerText = "Failed to write data to Datman!";
+                            throw error; // Re-throw the error for higher-level handling
+                        }
+                    }
+                    
                     //************************************************/
                     // CDA
                     // ***********************************************/ 
-                    
+
                     const statusBtn = document.querySelector(".status");
                     const cdaBtn = document.getElementById("cda-btn");
 
@@ -1460,13 +1470,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             try {
                                 // Write timeseries to Datman via PHP
-                                // console.log("Attempting to write Datman schema...");
-                                // const updatedPayloadForDatman = processDatmanPayloadWithoutMatch(datmanPayloads);
-                                // console.log("updatedPayloadForDatman: ", updatedPayloadForDatman);
-
-                                // datmanLoading(updatedPayloadForDatman);
-
-                                // Update the UI on success (already handled in datmanLoading)
+                                console.log("Attempting to write Datman schema...");
+                                datmanLoading(extractedDatmanData);
                             } catch (error) {
                                 // Handle errors (already handled in datmanLoading)
                             }
