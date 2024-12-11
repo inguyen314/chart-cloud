@@ -1023,7 +1023,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (type === "loading" && loading === "basin") {
                     console.log("Calling loading all gages in a basin.");
 
-                    const payloads = []; // Array to store payloads for all locations
+                    const payloads = [];
+                    const datmanPayloads = [];
 
                     series.forEach((location) => {
                         console.log("Label:", location.label);
@@ -1091,15 +1092,201 @@ document.addEventListener('DOMContentLoaded', function () {
                             "units": "ft",
                             "values": filteredValues
                         };
-
                         console.log("payload: ", payload);
 
-                        payloads.push(payload); // Save the payload for this location
+                        payloads.push(payload);
+
+                        // *******************************
+                        const tsCode = [
+                            { name: "Allenville-Whitley Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 76203018 },
+                            { name: "Alton-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 76186018 },
+                            { name: "Arnold-Meramec.Stage.Inst.~1Day.0.datman-rev", tscode: 45037018 },
+                            { name: "Ashburn-Salt.Stage.Inst.~1Day.0.datman-rev", tscode: 45082018 },
+                            { name: "Birds Point-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 44999018 },
+                            { name: "Breese-Shoal Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 76244018 },
+                            { name: "Brickeys Ldg-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 45063018 },
+                            { name: "Brownstown-Hickory Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 45027018 },
+                            { name: "Byrnesville-Big.Stage.Inst.~1Day.0.datman-rev", tscode: 45070018 },
+                            { name: "Cairo-Ohio.Stage.Inst.~1Day.0.datman-rev", tscode: 45007018 },
+                            { name: "Cape Girardeau-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 45064018 },
+                            { name: "Carlyle Lk TW-Kaskaskia.Elev.Inst.~1Day.0.datman-rev", tscode: 45033018 },
+                            { name: "Carlyle Lk-Kaskaskia.Elev.Inst.~1Day.0.datman-rev", tscode: 45032018 },
+                            { name: "Carlyle-Kaskaskia.Stage.Inst.~1Day.0.datman-rev", tscode: 45030018 },
+                            { name: "Champion City-Bourbeuse.Stage.Inst.~1Day.0.datman-rev", tscode: 936413018 },
+                            { name: "Chester-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 45065018 },
+                            { name: "Chesterville-Kaskaskia.Stage.Inst.~1Day.0.datman-rev", tscode: 76199018 },
+                            { name: "Commerce-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 44991018 },
+                            { name: "Cooks Mill-Kaskaskia.Stage.Inst.~1Day.0.datman-rev", tscode: 45073018 },
+                            { name: "Cowden-Kaskaskia.Stage.Inst.~1Day.0.datman-rev", tscode: 45042018 },
+                            { name: "Des Arc-Big Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 77001018 },
+                            { name: "Desloge-Big.Stage.Inst.~1Day.0.datman-rev", tscode: 101809018 },
+                            { name: "Engineers Depot-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 936416018 },
+                            { name: "Eureka-Meramec.Stage.Inst.~1Day.0.datman-rev", tscode: 45038018 },
+                            { name: "Fairman-E Fork.Stage.Inst.~1Day.0.datman-rev", tscode: 76206018 },
+                            { name: "Fayetteville-Kaskaskia.Stage.Inst.~1Day.0.datman-rev", tscode: 76246018 },
+                            { name: "Fisk-St Francis.Stage.Inst.~1Day.0.datman-rev", tscode: 969954018 },
+                            { name: "Florence-Illinois.Stage.Inst.~1Day.0.datman-rev", tscode: 76181018 },
+                            { name: "Frankford-Spencer Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 76258018 },
+                            { name: "Fredericktown-L St Francis.Stage.Inst.~1Day.0.datman-rev", tscode: 45060018 },
+                            { name: "Freeburg-Silver Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 76247018 },
+                            { name: "Grafton-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 45083018 },
+                            { name: "Grand Tower-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 45020018 },
+                            { name: "Grays Pt-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 45059018 },
+                            { name: "Hagers Grove-N Fork Salt.Stage.Inst.~1Day.0.datman-rev", tscode: 44986018 },
+                            { name: "Hardin-Illinois.Stage.Inst.~1Day.0.datman-rev", tscode: 76179018 },
+                            { name: "Hecker-Richland Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 76253018 },
+                            { name: "Herculaneum-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 936414018 },
+                            { name: "Hermann-Missouri.Flow.Inst.~1Day.0.datman-rev", tscode: 45016018 },
+                            { name: "Hermann-Missouri.Stage.Inst.~1Day.0.datman-rev", tscode: 45053018 },
+                            { name: "High Gate-Bourbeuse.Stage.Inst.~1Day.0.datman-rev", tscode: 45047018 },
+                            { name: "Hoffman-Crooked Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 45022018 },
+                            { name: "Holliday-Mid Fork Salt.Stage.Inst.~1Day.0.datman-rev", tscode: 45062018 },
+                            { name: "Iron Bridge-St Francis.Stage.Inst.~1Day.0.datman-rev", tscode: 76185018 },
+                            { name: "Irondale-Big.Stage.Inst.~1Day.0.datman-rev", tscode: 45021018 },
+                            { name: "Jefferson Brks-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 936415018 },
+                            { name: "LD 22 TW-Mississippi.Elev.Inst.~1Day.0.datman-rev", tscode: 45044018 },
+                            { name: "LD 22-Mississippi.Flow.Inst.~1Day.0.datman-rev", tscode: 45095018 },
+                            { name: "LD 24 Pool-Mississippi.Elev.Inst.~1Day.0.datman-rev", tscode: 44627018 },
+                            { name: "LD 24 TW-Mississippi.Elev.Inst.~1Day.0.datman-rev", tscode: 45074018 },
+                            { name: "LD 25 Pool-Mississippi.Elev.Inst.~1Day.0.datman-rev", tscode: 44628018 },
+                            { name: "LD 25 TW-Mississippi.Elev.Inst.~1Day.0.datman-rev", tscode: 45081018 },
+                            { name: "LD 27 Pool-Mississippi.Elev.Inst.~1Day.0.datman-rev", tscode: 45039018 },
+                            { name: "LD 27 TW-Mississippi.Elev.Inst.~1Day.0.datman-rev", tscode: 45002018 },
+                            { name: "Lk Shelbyville-Kaskaskia.Elev.Inst.~1Day.0.datman-rev", tscode: 45035018 },
+                            { name: "Louisiana-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 45006018 },
+                            { name: "Lovington-W Okaw.Stage.Inst.~1Day.0.datman-rev", tscode: 76248018 },
+                            { name: "Madison-Elk Fork Salt.Stage.Inst.~1Day.0.datman-rev", tscode: 45026018 },
+                            { name: "Mark Twain Lk TW-Salt.Elev.Inst.~1Day.0.datman-rev", tscode: 45008018 },
+                            { name: "Mark Twain Lk-Salt.Elev.Inst.~1Day.0.datman-rev", tscode: 45088018 },
+                            { name: "Mel Price Pool-Mississippi.Elev.Inst.~1Day.0.datman-rev", tscode: 44606018 },
+                            { name: "Mel Price TW-Mississippi.Elev.Inst.~1Day.0.datman-rev", tscode: 44166018 },
+                            { name: "Meredosia-Illinois.Flow.Inst.~1Day.0.datman-rev", tscode: 45015018 },
+                            { name: "Meredosia-Illinois.Stage.Inst.~1Day.0.datman-rev", tscode: 76184018 },
+                            { name: "Millcreek-St Francis.Stage.Inst.~1Day.0.datman-rev", tscode: 45051018 },
+                            { name: "Moccasin Springs-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 44996018 },
+                            { name: "Mosier Ldg-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 76204018 },
+                            { name: "Mt Vernon-Big Muddy.Stage.Inst.~1Day.0.datman-rev", tscode: 76259018 },
+                            { name: "Mt Vernon-Casey Fork.Stage.Inst.~1Day.0.datman-rev", tscode: 76262018 },
+                            { name: "Mulberry Grove-Hurricane Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 76251018 },
+                            { name: "Murphysboro-Big Muddy.Stage.Inst.~1Day.0.datman-rev", tscode: 76264018 },
+                            { name: "Nav Pool-Kaskaskia.Elev.Inst.~1Day.0.datman-rev", tscode: 44990018 },
+                            { name: "Nav TW-Kaskaskia.Elev.Inst.~1Day.0.datman-rev", tscode: 45043018 },
+                            { name: "New London-Salt.Stage.Inst.~1Day.0.datman-rev", tscode: 45004018 },
+                            { name: "Norton Bridge-Salt.Stage.Inst.~1Day.0.datman-rev", tscode: 45049018 },
+                            { name: "Pacific-Meramec.Stage.Inst.~1Day.0.datman-rev", tscode: 45045018 },
+                            { name: "Paris-Crooked Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 76256018 },
+                            { name: "Paris-Mid Fork Salt.Stage.Inst.~1Day.0.datman-rev", tscode: 45001018 },
+                            { name: "Patterson-St Francis.Stage.Inst.~1Day.0.datman-rev", tscode: 45091018 },
+                            { name: "Perry-Lick Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 76255018 },
+                            { name: "Pierron-Shoal Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 76220018 },
+                            { name: "Pittsburg-Kaskaskia.Stage.Inst.~1Day.0.datman-rev", tscode: 45078018 },
+                            { name: "Plumfield-Big Muddy.Stage.Inst.~1Day.0.datman-rev", tscode: 45046018 },
+                            { name: "Posey-Kaskaskia.Stage.Inst.~1Day.0.datman-rev", tscode: 76219018 },
+                            { name: "Price Ldg-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 45085018 },
+                            { name: "Pump Sta 1-Wood River E Alton.Elev.Inst.~1Day.0.datman-rev", tscode: 45005018 },
+                            { name: "Ramsey-Kaskaskia.Stage.Inst.~1Day.0.datman-rev", tscode: 45096018 },
+                            { name: "ReReg Pool-Salt.Elev.Inst.~1Day.0.datman-rev", tscode: 45089018 },
+                            { name: "Red Bud-Kaskaskia.Stage.Inst.~1Day.0.datman-rev", tscode: 76254018 },
+                            { name: "Red Rock Ldg-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 45056018 },
+                            { name: "Rend Lk TW-Big Muddy.Elev.Inst.~1Day.0.datman-rev", tscode: 45041018 },
+                            { name: "Rend Lk-Big Muddy.Elev.Inst.~1Day.0.datman-rev", tscode: 45067018 },
+                            { name: "Richwoods-Big.Stage.Inst.~1Day.0.datman-rev", tscode: 45019018 },
+                            { name: "Roselle-St Francis.Stage.Inst.~1Day.0.datman-rev", tscode: 44993018 },
+                            { name: "Saco-St Francis.Stage.Inst.~1Day.0.datman-rev", tscode: 45010018 },
+                            { name: "Sam A Baker Park-Big Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 45071018 },
+                            { name: "Sand Ridge-Big Muddy.Stage.Inst.~1Day.0.datman-rev", tscode: 76265018 },
+                            { name: "Santa Fe-Long Branch.Stage.Inst.~1Day.0.datman-rev", tscode: 45079018 },
+                            { name: "Santa Fe-S Fork Salt.Stage.Inst.~1Day.0.datman-rev", tscode: 45040018 },
+                            { name: "Shelbina-N Fork Salt.Stage.Inst.~1Day.0.datman-rev", tscode: 76257018 },
+                            { name: "Shelbyville TW-Kaskaskia.Elev.Inst.~1Day.0.datman-rev", tscode: 44998018 },
+                            { name: "Shelbyville-Robinson Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 76250018 },
+                            { name: "St Charles-Missouri.Stage.Inst.~1Day.0.datman-rev", tscode: 45086018 },
+                            { name: "St Francis-St Francis.Stage.Inst.~1Day.0.datman-rev", tscode: 45014018 },
+                            { name: "St Louis-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 43830018 },
+                            { name: "Steelville-Meramec.Stage.Inst.~1Day.0.datman-rev", tscode: 45000018 },
+                            { name: "Sterling Ldg-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 45057018 },
+                            { name: "Sub-Big Muddy.Elev.Inst.~1Day.0.datman-rev", tscode: 45068018 },
+                            { name: "Sub-Casey Fork.Elev.Inst.~1Day.0.datman-rev", tscode: 45018018 },
+                            { name: "Sullivan-Meramec.Stage.Inst.~1Day.0.datman-rev", tscode: 44987018 },
+                            { name: "Thebes-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 45058018 },
+                            { name: "Thompson Ldg-Mississippi.Stage.Inst.~1Day.0.datman-rev", tscode: 76200018 },
+                            { name: "Troy-Cuivre.Stage.Inst.~1Day.0.datman-rev", tscode: 45024018 },
+                            { name: "Union-Bourbeuse.Stage.Inst.~1Day.0.datman-rev", tscode: 45069018 },
+                            { name: "Valley City-Illinois.Stage.Inst.~1Day.0.datman-rev", tscode: 76183018 },
+                            { name: "Valley Park-Meramec.Stage.Inst.~1Day.0.datman-rev", tscode: 45061018 },
+                            { name: "Vandalia-Kaskaskia.Stage.Inst.~1Day.0.datman-rev", tscode: 45097018 },
+                            { name: "Venedy Station-Kaskaskia.Stage.Inst.~1Day.0.datman-rev", tscode: 76245018 },
+                            { name: "Waltonville-Rayse Cr.Stage.Inst.~1Day.0.datman-rev", tscode: 76260018 },
+                            { name: "Wappapello Lk-St Francis.Elev.Inst.~1Day.0.datman-rev", tscode: 44995018 }
+                        ];
+                        console.log("tsCode: ", tsCode);
+
+                        const datmanPayloads = payloads;
+
+                        datmanPayloads.forEach(payload => {
+                            const match = tsCode.find(ts => ts.name === payload.name);
+                            if (match) {
+                                console.log("match: ", match);
+                                payload.tscode = match.tscode; // Append the tscode to the payload
+                            } else {
+                                console.log("No match found for: ", payload.name);
+                            }
+                        });
+                        console.log("datmanPayloads: ", datmanPayloads);
+
+                        const updatedPayloadForDatman = processDatmanPayloadWithoutMatch(datmanPayloads);
+                        console.log("updatedPayloadForDatman: ", updatedPayloadForDatman);
+
                     });
                     console.log("All payloads prepared: ", payloads);
+
+
+                    // async function datmanLoading(datmanPayloads) {
+                    //     if (!datmanPayload) throw new Error("You must specify a payload!");
+
+                    //     try {
+                    //         // Indicate that the process is ongoing
+                    //         statusDatman.innerHTML = 'Saving... <img src="images/loading4.gif" width="50" height="50" alt="Loading...">';
+
+                    //         // Log the payload for debugging
+                    //         console.log("datmanPayload being sent to the server: ", datmanPayload);
+
+                    //         // Make an HTTP POST request to the PHP function
+                    //         const response = await fetch('chart.php', {
+                    //             method: 'POST',
+                    //             headers: { 'Content-Type': 'application/json' },
+                    //             body: JSON.stringify(datmanPayload), // Send the payload as a JSON string
+                    //         });
+
+                    //         // Log the raw HTTP response for debugging
+                    //         console.log("HTTP Response status: ", response.status);
+
+                    //         // Parse the JSON response from the server
+                    //         const result = await response.json();
+
+                    //         // Check if the response is okay
+                    //         if (response.ok) {
+                    //             console.log("Data saved successfully: ", result);
+                    //             statusDatman.innerText = "Write Datman successful!";
+                    //             return result; // Return result if needed for further processing
+                    //         } else {
+                    //             // Log server-side errors
+                    //             console.error("Error saving data on the server: ", result);
+                    //             statusDatman.innerText = "Failed to write data to Datman!";
+                    //             throw new Error(`Server error: ${result.message}`);
+                    //         }
+                    //     } catch (error) {
+                    //         // Log any unexpected errors
+                    //         console.error("Error while saving timeseries: ", error.message);
+                    //         statusDatman.innerText = "Failed to write data to Datman!";
+                    //         throw error; // Re-throw the error for higher-level handling
+                    //     }
+                    // }
+
                     //************************************************/
-                    // CDA BUTTON
+                    // CDA
                     // ***********************************************/ 
+                    
                     const statusBtn = document.querySelector(".status");
                     const cdaBtn = document.getElementById("cda-btn");
 
@@ -1249,6 +1436,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         return has_errors;
                     }
 
+                    //************************************************/
+                    // BUTTON
+                    // ***********************************************/
                     cdaBtn.onclick = async () => {
                         if (cdaBtn.innerText === "Login") {
                             const loginResult = await loginCDA();
@@ -1266,6 +1456,19 @@ document.addEventListener('DOMContentLoaded', function () {
                                 // statusBtn.innerText = "Write CWMS successful!";
                             } catch (error) {
                                 statusBtn.innerText = "Failed to write data to CWMS!";
+                            }
+
+                            try {
+                                // Write timeseries to Datman via PHP
+                                // console.log("Attempting to write Datman schema...");
+                                // const updatedPayloadForDatman = processDatmanPayloadWithoutMatch(datmanPayloads);
+                                // console.log("updatedPayloadForDatman: ", updatedPayloadForDatman);
+
+                                // datmanLoading(updatedPayloadForDatman);
+
+                                // Update the UI on success (already handled in datmanLoading)
+                            } catch (error) {
+                                // Handle errors (already handled in datmanLoading)
                             }
                         }
                     };
@@ -2726,4 +2929,54 @@ function processDatmanPayload(datmanPayload, match) {
     });
 
     return datmanPayload;
+}
+
+function processDatmanPayloadWithoutMatch(datmanPayloads) {
+    if (!Array.isArray(datmanPayloads) || datmanPayloads.length === 0) {
+        throw new Error("Invalid input: datmanPayloads must be a non-empty array.");
+    }
+
+    // Helper function to format a timestamp into a Date object
+    const formatDate = (timestamp) => {
+        return new Date(timestamp); // Convert timestamp to Date object
+    };
+
+    // Helper function to format date into 'dd-MMM-yyyy hh24:mi' in UTC
+    const formatDateStringWithTimeUTC = (date) => {
+        const day = date.getUTCDate().toString().padStart(2, '0'); // Ensure 2-digit day
+        const month = date.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }).toUpperCase(); // Get month in uppercase
+        const year = date.getUTCFullYear().toString(); // Full 4-digit year
+        const hours = date.getUTCHours().toString().padStart(2, '0'); // 24-hour format
+        const minutes = date.getUTCMinutes().toString().padStart(2, '0'); // 2-digit minutes
+
+        return `${day}-${month}-${year} ${hours}:${minutes}`;
+    };
+
+    // Helper function to get the current date in UTC and format it as 'dd-MMM-yyyy hh24:mi'
+    const getUTCDateWithTime = () => {
+        const now = new Date();
+        return formatDateStringWithTimeUTC(now);
+    };
+
+    const fixedDateWithTimeUTC = getUTCDateWithTime();
+
+    // Process each payload
+    return datmanPayloads.map(payload => {
+        if (!payload.values || !payload.tscode) {
+            throw new Error("Invalid payload: missing values or tscode.");
+        }
+
+        // Prepend tscode and convert timestamps to formatted date strings with UTC time
+        const updatedValues = payload.values.map(([timestamp, ...rest]) => {
+            const formattedDate = formatDate(timestamp); // Parse timestamp into Date object
+            const formattedDateStrWithTimeUTC = formatDateStringWithTimeUTC(formattedDate); // Format in UTC
+            return [payload.tscode, fixedDateWithTimeUTC, formattedDateStrWithTimeUTC, ...rest, null, null];
+        });
+
+        // Return the updated payload
+        return {
+            ...payload,
+            values: updatedValues
+        };
+    });
 }
