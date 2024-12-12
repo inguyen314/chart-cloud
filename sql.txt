@@ -19,3 +19,5 @@ order by date_time desc;
 alter session set NLS_DATE_FORMAT='mm-dd-yyyy hh24:mi';
 
 tail -50 /wm/mvs/wm_web/var/apache2/2.4/logs/php_errors.log
+
+St.LouisMO379.94
