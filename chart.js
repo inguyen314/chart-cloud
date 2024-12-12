@@ -6,18 +6,22 @@ document.addEventListener('DOMContentLoaded', function () {
     // How loading option
     showDatmanLoad(type, cwms_ts_id_2, loading);
 
-    // Define your tsids
-    const tsids = [
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_2) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_3) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_4) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_5) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_6) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_7) },
-        { cwms_ts_id: encodeURIComponent(cwms_ts_id_8) }
-    ];
-    // console.log("tsids = ", tsids);
+    const tsids = [];
+
+    // Add the first cwms_ts_id without the _1 suffix
+    let cwmsTsId = cwms_ts_id;  // Use the initial cwms_ts_id value
+    if (cwmsTsId) {
+        tsids.push({ cwms_ts_id: encodeURIComponent(cwmsTsId) });
+    }
+
+    // Loop through cwms_ts_id_1 to cwms_ts_id_50
+    for (let i = 1; i <= 50; i++) {
+        cwmsTsId = window[`cwms_ts_id_${i}`];  // Dynamically access cwms_ts_id_1 to cwms_ts_id_50
+        if (cwmsTsId) {
+            tsids.push({ cwms_ts_id: encodeURIComponent(cwmsTsId) });
+        }
+    }
+    console.log("tsids: ", tsids);  // Logs the tsids array with all non-null cwms_ts_id values
 
     // Filter out tsids where cwms_ts_id is null or undefined
     const validTsids = tsids.filter(data => data.cwms_ts_id !== null && data.cwms_ts_id !== undefined && data.cwms_ts_id !== 'null');
