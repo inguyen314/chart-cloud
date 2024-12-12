@@ -1258,6 +1258,10 @@ document.addEventListener('DOMContentLoaded', function () {
                             // Log the payload for debugging
                             console.log("datmanPayload being sent to the server: ", datmanPayload);
                     
+                            // Get the total number of payload items
+                            const totalItems = datmanPayload.length;
+                            let processedItems = 0;
+                    
                             // Loop through each data entry in the payload
                             for (const payloadItem of datmanPayload) {
                                 // Log each payload item for debugging
@@ -1284,8 +1288,16 @@ document.addEventListener('DOMContentLoaded', function () {
                                     console.error("Error saving data on the server: ", result);
                                     throw new Error(`Server error: ${result.message}`);
                                 }
+                    
+                                // Increment the processed item count
+                                processedItems++;
+                    
+                                // Update the status with the percentage completed
+                                const percentageCompleted = Math.floor((processedItems / totalItems) * 100);
+                                statusDatman.innerHTML = `Saving... (${percentageCompleted}%) <img src="images/loading4.gif" width="50" height="50" alt="Loading...">`;
                             }
                     
+                            // Update the status to indicate success
                             statusDatman.innerText = "Write Datman successful!";
                             return true; // Indicate success
                     
@@ -1295,7 +1307,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             statusDatman.innerText = "Failed to write data to Datman!";
                             throw error; // Re-throw the error for higher-level handling
                         }
-                    }
+                    }                    
                     
                     //************************************************/
                     // CDA
