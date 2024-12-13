@@ -993,7 +993,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     'rgba(169, 169, 169, 1)'   // Darker Gray
                 ];
 
-
                 const series = nonEmptyDatasets.map((data, index) => {
                     const cwmsTsId = data.name; // Retrieve cwmsTsId from each dataset
 
@@ -1374,10 +1373,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (!Array.isArray(payloads) || payloads.length === 0) {
                             throw new Error("You must specify a non-empty array of payloads!");
                         }
-
+                    
                         try {
                             statusBtn.innerHTML = 'Saving... <img src="images/loading4.gif" width="50" height="50" alt="Loading...">';
-
+                    
+                            // Track the total number of payloads and processed payloads
+                            const totalPayloads = payloads.length;
+                            let processedPayloads = 0;
+                    
                             // Process each payload sequentially
                             for (const payload of payloads) {
                                 const response = await fetch("https://wm.mvs.ds.usace.army.mil/mvs-data/timeseries?store-rule=REPLACE%20ALL", {
@@ -1388,25 +1391,30 @@ document.addEventListener('DOMContentLoaded', function () {
                                     },
                                     body: JSON.stringify(payload),
                                 });
-
+                    
                                 if (!response.ok) {
                                     const errorText = await response.text();
                                     throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
                                 }
-
+                    
                                 console.log("Successfully wrote timeseries for payload:", payload);
+                    
+                                // Increment processed payload count and update status
+                                processedPayloads++;
+                                const percentageCompleted = Math.floor((processedPayloads / totalPayloads) * 100);
+                                statusBtn.innerHTML = `Saving... (${percentageCompleted}%) <img src="images/loading4.gif" width="50" height="50" alt="Loading...">`;
                             }
-
-                            // Only update the status after all payloads have been processed
+                    
+                            // Update the status to indicate success
                             statusBtn.innerText = "Write CWMS successful for all payloads!";
                             return true;
-
+                    
                         } catch (error) {
                             console.error('Error writing timeseries:', error);
                             statusBtn.innerText = "Failed to write data to CWMS!";
                             throw error;
                         }
-                    }
+                    }                    
 
                     async function deleteTS(payloads) {
                         // Log the input payloads and check if it's an array
@@ -2554,7 +2562,7 @@ function initializeBasinDropdownDataEditing(basin, office, type) {
             };
 
             const selectedTsis = basinMap[selectedBasin] || "St Louis-Mississippi.Elev.Inst.30Minutes.0.lrgsShef-rev";
-            const newUrl = `?office=${office}&type=${type}&basin=${selectedBasin}&cwms_ts_id=${selectedTsis}&lookback=30`;
+            const newUrl = `?office=${office}&type=${type}&basin=${selectedBasin}&lookback=30&cwms_ts_id=${selectedTsis}`;
             window.location.href = newUrl;
         });
     }
@@ -2619,7 +2627,7 @@ function initializeBasinDropdownDataLoading(basin, office, type) {
             };
 
             const selectedTsis = basinMap[selectedBasin] || "St Louis-Mississippi.Stage.Inst.30Minutes.0.lrgsShef-rev";
-            const newUrl = `?office=${office}&type=${type}&basin=${selectedBasin}&cwms_ts_id=${selectedTsis}&lookback=30`;
+            const newUrl = `?office=${office}&type=${type}&basin=${selectedBasin}&lookback=30&cwms_ts_id=${selectedTsis}`;
             window.location.href = newUrl;
         });
     }
