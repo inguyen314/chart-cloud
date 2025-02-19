@@ -817,13 +817,13 @@ document.addEventListener('DOMContentLoaded', function () {
                                     } else {
                                         // Log server-side errors
                                         console.error("Error saving data on the server: ", result);
-                                        statusDatman.innerText = "Failed to write data to Datman!";
+                                        statusDatman.innerText = "Failed to write data to Datman! Please Check wm_mvs_datman Password";
                                         throw new Error(`Server error: ${result.message}`);
                                     }
                                 } catch (error) {
                                     // Log any unexpected errors
                                     console.error("Error while saving timeseries: ", error.message);
-                                    statusDatman.innerText = "Failed to write data to Datman!";
+                                    statusDatman.innerText = "Failed to write data to Datman! Please Check wm_mvs_datman Password";
                                     throw error; // Re-throw the error for higher-level handling
                                 }
                             }
@@ -1303,7 +1303,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         } catch (error) {
                             // Log any unexpected errors
                             console.error("Error while saving timeseries: ", error.message);
-                            statusDatman.innerText = "Failed to write data to Datman!";
+                            statusDatman.innerText = "Failed to write data to Datman! Please Check wm_mvs_datman Password";
                             throw error; // Re-throw the error for higher-level handling
                         }
                     }                    
@@ -2761,9 +2761,9 @@ function updateCdaLinks(office, basin, cwms_ts_id, cda) {
         // Create a URL object to easily manipulate the query parameters
         let url = new URL(currentHref, window.location.origin);
 
-        // Check if "index.html" exists in the path and prepend "apps/chart/"
+        // Check if "index.html" exists in the path and prepend "mvs/chart/"
         if (url.pathname.endsWith('index.html')) {
-            url.pathname = 'apps/chart' + url.pathname;
+            url.pathname = 'mvs/chart' + url.pathname;
         }
 
         // Create or update the search parameters
