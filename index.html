@@ -96,7 +96,7 @@
                                         var cwms_ts_id_48 = urlParams.get('cwms_ts_id_48');
                                         var cwms_ts_id_49 = urlParams.get('cwms_ts_id_49');
                                         var cwms_ts_id_50 = urlParams.get('cwms_ts_id_50');
-                                        var office = urlParams.get('office');
+                                        var office = urlParams.get('office') || "MVS";
                                         var lookforward = urlParams.get('lookforward') || '0';
                                         var type = urlParams.get('type');
                                         var loading = urlParams.get('loading');
@@ -127,18 +127,21 @@
 
                                         // Calculate the document root
                                         const documentRoot = window.location.protocol + "//" + window.location.host + "/";
-
-                                        console.log("office: ", office.toLowerCase());
+                                        console.log("documentRoot: ", documentRoot);
 
                                         // Determine the default value of cda based on documentRoot
-                                        const cdaDefault = (documentRoot === `https://wm.${office.toLowerCase()}.ds.usace.army.mil/`) ? "internal" : "public";
-
+                                        if (documentRoot === `https://wm.${office.toLocaleLowerCase()}.ds.usace.army.mil/` || `http://localhost:5173/` || `https://wm.rsgis.dev/` || `https://wm-${office.toLocaleLowerCase()}coop.mvk.ds.usace.army.mil/`) {
+                                            cdaDefault = "internal";
+                                        } else if (documentRoot === `https://wm-${office.toLocaleLowerCase()}coop.mvk.ds.usace.army.mil/`) {
+                                            cdaDefault = "internal-coop";
+                                        } else {
+                                            cdaDefault = "public";
+                                        }
                                         console.log("cdaDefault: ", cdaDefault);
 
                                         if (cda === null) {
                                             cda = cdaDefault;
                                         }
-
                                         console.log("cda: ", cda);
                                     </script>
 
