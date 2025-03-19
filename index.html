@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/body.css" />
     <link rel="stylesheet" href="css/breadcrumbs.css" />
     <link rel="stylesheet" href="css/jumpMenu.css" />
-    <!-- <link rel="stylesheet" href="css/sidebar.css" /> -->
+    <link rel="stylesheet" href="css/sidebar.css" />
     <link rel="stylesheet" href="css/chart.css" />
     <script src="js/main.js"></script>
     <script src="js/moment.min.js"></script>
@@ -33,7 +33,7 @@
                     <div id="topPane" class="col-md backend-cp-collapsible">
                         <div class="box-usace">
                             <h2 class="box-header-striped">
-                                <span class="titleLabel title"></span>
+                                <span class="titleLabel title">Title</span>
                                 <span class="rss"></span>
                             </h2>
                             <div class="box-content" style="background-color:white;margin:auto">
@@ -108,22 +108,16 @@
 
                                         // Extract text before the first period
                                         const cwms_ts_id_before_period = cwms_ts_id.split('.')[0];
+                                        const titleElement = document.querySelector('.titleLabel.title');
 
-                                        // Update the title
-                                        if (type) {
-                                            // Update the title
-                                            const titleElement = document.querySelector('.titleLabel.title');
-                                            if (titleElement) {
-                                                titleElement.textContent += `${cwms_ts_id_before_period} - ${type.toUpperCase()}`;
-                                                console.log('Title updated to: ', titleElement.textContent);
+                                        if (titleElement) {
+                                            titleElement.innerHTML = cwms_ts_id_before_period;
+                                            if (type) {
+                                                titleElement.innerHTML += ` - ${type.toUpperCase()}`;
                                             }
-                                        } else {
-                                            const titleElement = document.querySelector('.titleLabel.title');
-                                            if (titleElement) {
-                                                titleElement.textContent += `${cwms_ts_id_before_period}`;
-                                                console.log('Title updated to: ', titleElement.textContent);
-                                            }
+                                            console.log('Title updated to:', titleElement.innerHTML);
                                         }
+
 
                                         // Calculate the document root
                                         const documentRoot = window.location.protocol + "//" + window.location.host + "/";
@@ -227,7 +221,7 @@
                                                 // document.getElementById('gage_control_04').style.display = 'none';
                                             }
                                         });
-                                    </script>                                    
+                                    </script>
 
                                     <!-- Switch API button -->
                                     <script>
