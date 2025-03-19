@@ -75,7 +75,7 @@ canvas {
 /*** GAGE CONTROL CONTAINER ***/
 /*** ===================================================================================== ***/
 #data_table {
-    width: 25%;
+    width: 30%;
 }
 
 #data_table_datman {
@@ -83,7 +83,7 @@ canvas {
 }
 
 #datman_load {
-    width: 15%;
+    width: 10%;
 }
 
 #data_table_extent {
@@ -103,7 +103,7 @@ canvas {
 #gage_control_02,
 #gage_control_03,
 #gage_control_04 {
-    width: 24%;
+    width: 24%; /* Keep them side by side on larger screens */
     padding: 15px;
     border: 1px solid #666666;
     border-radius: 8px;
@@ -113,7 +113,22 @@ canvas {
     box-sizing: border-box;
     margin-bottom: 20px;
     background-color: #f9f9f9;
-    /* Matching background color */
+}
+
+/* Stack vertically on screens smaller than 768px (like mobile) */
+@media (max-width: 768px) {
+    .gage_control_container {
+        flex-direction: column;
+    }
+
+    #gage_control_01,
+    #gage_control_02,
+    #gage_control_03,
+    #gage_control_04 {
+        width: 50%; /* Full width on mobile */
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
 }
 
 form.modern-form {

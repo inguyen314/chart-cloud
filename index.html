@@ -130,7 +130,8 @@
                                         console.log("documentRoot: ", documentRoot);
 
                                         // Determine the default value of cda based on documentRoot
-                                        if (documentRoot === `https://wm.${office.toLocaleLowerCase()}.ds.usace.army.mil/` || `http://localhost:5173/` || `https://wm.rsgis.dev/` || `https://wm-${office.toLocaleLowerCase()}coop.mvk.ds.usace.army.mil/`) {
+                                        let cdaDefault = null;
+                                        if (documentRoot === `https://wm.${office.toLocaleLowerCase()}.ds.usace.army.mil/`) {
                                             cdaDefault = "internal";
                                         } else if (documentRoot === `https://wm-${office.toLocaleLowerCase()}coop.mvk.ds.usace.army.mil/`) {
                                             cdaDefault = "internal-coop";
@@ -218,24 +219,35 @@
                                         <div id="gage_control_04"></div>
                                     </div>
 
-                                    <!-- Switch API button -->
-                                    <div id="switchCda">
-                                        <script>
-                                            document.addEventListener('DOMContentLoaded', () => {
-                                                addSwitchCdaLink(office, basin, cwms_ts_id, cda);
-                                            });
-                                        </script>
-                                    </div>
-
-                                    <div id="switchType">
-                                        <script>
-                                            if (type) {
-                                                document.addEventListener('DOMContentLoaded', () => {
-                                                    addSwitchTypeLink(office, basin, cwms_ts_id, cda, type, lookback);
-                                                });
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', () => {
+                                            if (cda === "public") {
+                                                document.getElementById('gage_control_02').style.display = 'none';
+                                                document.getElementById('gage_control_03').style.display = 'none';
+                                                // document.getElementById('gage_control_04').style.display = 'none';
                                             }
-                                        </script>
-                                    </div>
+                                        });
+                                    </script>                                    
+
+                                    <!-- Switch API button -->
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', () => {
+                                            if (cda == "internal") {
+                                                const switchCdaDiv = document.createElement('div');
+                                                switchCdaDiv.id = 'switchCda';
+                                                addSwitchCdaLink(office, basin, cwms_ts_id, cda);
+                                                document.body.appendChild(switchCdaDiv);
+
+                                                if (type) {
+                                                    const switchTypeDiv = document.createElement('div');
+                                                    switchTypeDiv.id = 'switchType';
+                                                    addSwitchTypeLink(office, basin, cwms_ts_id, cda, type, lookback);
+                                                    document.body.appendChild(switchTypeDiv);
+                                                }
+                                            }
+                                        });
+                                    </script>
+
 
                                     <!-- data table -->
                                     <div class="gage_control_container">
