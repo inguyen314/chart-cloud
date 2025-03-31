@@ -224,24 +224,24 @@
                                     </script>
 
                                     <!-- Switch API button -->
-                                    <script>
-                                        // document.addEventListener('DOMContentLoaded', () => {
-                                        //     if (cda == "internal") {
-                                        //         const switchCdaDiv = document.createElement('div');
-                                        //         switchCdaDiv.id = 'switchCda';
-                                        //         addSwitchCdaLink(office, basin, cwms_ts_id, cda);
-                                        //         document.body.appendChild(switchCdaDiv);
+                                    <!-- Switch API button -->
+                                    <div id="switchCda">
+                                        <script>
+                                            document.addEventListener('DOMContentLoaded', () => {
+                                                addSwitchCdaLink(office, basin, cwms_ts_id, cda);
+                                            });
+                                        </script>
+                                    </div>
 
-                                        //         if (type) {
-                                        //             const switchTypeDiv = document.createElement('div');
-                                        //             switchTypeDiv.id = 'switchType';
-                                        //             addSwitchTypeLink(office, basin, cwms_ts_id, cda, type, lookback);
-                                        //             document.body.appendChild(switchTypeDiv);
-                                        //         }
-                                        //     }
-                                        // });
-                                    </script>
-
+                                    <div id="switchType">
+                                        <script>
+                                            if (type) {
+                                                document.addEventListener('DOMContentLoaded', () => {
+                                                    addSwitchTypeLink(office, basin, cwms_ts_id, cda, type, lookback);
+                                                });
+                                            }
+                                        </script>
+                                    </div>
 
                                     <!-- data table -->
                                     <div class="gage_control_container">

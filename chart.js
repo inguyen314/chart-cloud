@@ -49,9 +49,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let baseUrl = null;
     if (cda === "public") {
-        baseUrl = `https://cwms-data.usace.army.mil/cwms-data`;
+        // baseUrl = `https://cwms-data.usace.army.mil/cwms-data`;
+        baseUrl = `https://cwms.sec.usace.army.mil/cwms-data/`;
     } else if (cda === "internal") {
-        baseUrl = `https://wm.${office.toLowerCase()}.ds.usace.army.mil:8243/mvs-data`;
+        baseUrl = `https://wm.${office.toLowerCase()}.ds.usace.army.mil/mvs-data`;
     } else {
         baseUrl = null;
     }
