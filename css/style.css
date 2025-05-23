@@ -1,6 +1,7 @@
 /**************************************************************************/
 /*PLOT MACRO*/
 /**************************************************************************/
+/* Default settings for mobile */
 #chart {
     border: 5px solid darkblue;
     margin-bottom: 25px;
@@ -21,6 +22,34 @@
 canvas {
     border: 1px solid #ccc;
     margin: 10px;
+}
+
+/* Adjustments for desktop screens */
+@media (min-width: 768px) {
+    #chart {
+        width: 100%; /* Ensures it takes up available width */
+    }
+
+    .chart-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center; /* Centers charts */
+    }
+
+    .chart-row {
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+    }
+
+    canvas {
+        border: 1px solid #ccc;
+        margin: 10px;
+        max-width: 100%; /* Prevents the canvas from being too wide */
+        height: auto;    /* Keeps the aspect ratio intact */
+        box-sizing: border-box; /* Includes border in the width/height calculations */
+    }
 }
 
 /*** ===================================================================================== ***/
@@ -75,7 +104,7 @@ canvas {
 /*** GAGE CONTROL CONTAINER ***/
 /*** ===================================================================================== ***/
 #data_table {
-    width: 30%;
+    width: 25%;
 }
 
 #data_table_datman {
@@ -87,7 +116,7 @@ canvas {
 }
 
 #data_table_extent {
-    width: 35%;
+    width: 40%;
 }
 
 /*** ===================================================================================== ***/

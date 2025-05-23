@@ -76,7 +76,7 @@ function saveDataToOracle($data)
     $port = '1521';
     $serviceName = 'B3CWMSP1';
     $dbUser = 'wm_mvs_datman';
-    $dbPassword = 'Feb_Feb_Feb_216';
+    $dbPassword = 'h57FxA^-Ba=45-h';
 
     // Construct the Oracle connection string
     $dbConnection = "(DESCRIPTION =

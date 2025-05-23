@@ -1,68 +1,78 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Display the loading_chart indicator
+    // Show the chart loading indicator
     const loadingIndicator = document.getElementById('loading_chart');
     loadingIndicator.style.display = 'block';
 
-    // How loading option
+    // Show loading option for the Datman chart
     showDatmanLoad(type, cwms_ts_id_2, loading);
 
+    // Initialize an array to hold all chart timeseries passed in the URL
     const tsids = [];
 
-    // Add the first cwms_ts_id without the _1 suffix
-    let cwmsTsId = cwms_ts_id;  // Use the initial cwms_ts_id value
-    if (cwmsTsId) {
-        tsids.push({ cwms_ts_id: encodeURIComponent(cwmsTsId) });
+    // Add the primary cwms_ts_id if defined
+    if (cwms_ts_id) {
+        tsids.push({ cwms_ts_id: encodeURIComponent(cwms_ts_id) });
     }
 
-    // Loop through cwms_ts_id_1 to cwms_ts_id_50
+    // Add additional cwms_ts_id_1 to cwms_ts_id_50 if defined
     for (let i = 1; i <= 50; i++) {
-        cwmsTsId = window[`cwms_ts_id_${i}`];  // Dynamically access cwms_ts_id_1 to cwms_ts_id_50
-        if (cwmsTsId) {
-            tsids.push({ cwms_ts_id: encodeURIComponent(cwmsTsId) });
+        const tsId = window[`cwms_ts_id_${i}`];
+        if (tsId) {
+            tsids.push({ cwms_ts_id: encodeURIComponent(tsId) });
         }
     }
-    console.log("tsids: ", tsids);  // Logs the tsids array with all non-null cwms_ts_id values
 
-    // Filter out tsids where cwms_ts_id is null or undefined
-    const validTsids = tsids.filter(data => data.cwms_ts_id !== null && data.cwms_ts_id !== undefined && data.cwms_ts_id !== 'null');
-    // console.log("validTsids = ", validTsids);
+    console.log("tsids:", tsids); // Log all collected timeseries IDs
 
-    // Get current date and time
+    // Filter out invalid tsids (null, undefined, or literal "null")
+    const validTsids = tsids.filter(data =>
+        data.cwms_ts_id !== null &&
+        data.cwms_ts_id !== undefined &&
+        data.cwms_ts_id !== 'null'
+    );
+
+    // Get the current date and time
     const currentDateTime = new Date();
-    // console.log("currentDateTime = ", currentDateTime);
 
-    // Subtract thirty hours from current date and time
+    // Calculate date/time ranges based on lookback/lookforward values
     const currentDateTimeMinusLookBack = subtractHoursFromDate(currentDateTime, lookback);
-    // console.log("currentDateTimeMinusLookBack = ", currentDateTimeMinusLookBack);
-
-    // Add thirty hours from current date and time
     const currentDateTimeAddLookForward = addHoursFromDate(currentDateTime, lookforward);
-    // console.log("currentDateTimeAddLookForward = ", currentDateTimeAddLookForward);
 
-    // Subtract thirty hours from current date and time
     const currentDateTimeMinusLookBackDays = subtractDaysFromDate(currentDateTime, lookback);
-    // console.log("currentDateTimeMinusLookBack = ", currentDateTimeMinusLookBack);
-
-    // Add thirty hours from current date and time
     const currentDateTimeAddLookForwardDays = addDaysFromDate(currentDateTime, lookforward);
-    // console.log("currentDateTimeAddLookForward = ", currentDateTimeAddLookForward);
 
+    // Uncomment below lines for debugging
+    // console.log("validTsids:", validTsids);
+    // console.log("currentDateTime:", currentDateTime);
+    // console.log("Minus lookback hours:", currentDateTimeMinusLookBack);
+    // console.log("Plus lookforward hours:", currentDateTimeAddLookForward);
+    // console.log("Minus lookback days:", currentDateTimeMinusLookBackDays);
+    // console.log("Plus lookforward days:", currentDateTimeAddLookForwardDays);
+
+    // Determine the base URL based on the 'cda' environment
     let baseUrl = null;
+
     if (cda === "public") {
-        // baseUrl = `https://cwms-data.usace.army.mil/cwms-data`;
-        baseUrl = `https://cwms.sec.usace.army.mil/cwms-data/`;
+        baseUrl = `https://cwms-data.usace.army.mil/cwms-data`;
+        // baseUrl = `https://cwms.sec.usace.army.mil/cwms-data/`;
     } else if (cda === "internal") {
-        baseUrl = `https://wm.${office.toLowerCase()}.ds.usace.army.mil/mvs-data`;
+        // Construct internal URL using the lowercase office code
+        baseUrl = `https://wm.${office.toLowerCase()}.ds.usace.army.mil/${office.toLowerCase()}-data`;
     } else {
-        baseUrl = null;
+        baseUrl = null; // Fallback if cda is not recognized
     }
 
-    // Map each dataset to its corresponding URL
+    console.log("baseUrl =", baseUrl);
+
+
+    // Map each valid timeseries ID to its corresponding API URL
     const timeseriesUrl = validTsids.map(data => {
-        const queryString = data.cwms_ts_id; // Assuming this is correct
+        const queryString = data.cwms_ts_id; // Encoded cwms_ts_id value
         return `${baseUrl}/timeseries?page-size=40000&name=${queryString}&begin=${currentDateTimeMinusLookBackDays.toISOString()}&end=${currentDateTimeAddLookForwardDays.toISOString()}&office=${office}`;
     });
-    // console.log("timeseriesUrl = ", timeseriesUrl);
+
+    // Uncomment for debugging
+    // console.log("timeseriesUrl =", timeseriesUrl);
 
     // Fetch all tsids simultaneously
     Promise.all(
@@ -84,47 +94,61 @@ document.addEventListener('DOMContentLoaded', function () {
             }));
         })
         .then(datasets => {
-            // console.log('datasets:', datasets);
+            console.log("datasets:", datasets);
 
+            // Filter out datasets with no values
             const nonEmptyDatasets = datasets.filter(data => data.values && data.values.length > 0);
-            // console.log('nonEmptyDatasets:', nonEmptyDatasets);
 
-            // First Location
+            // Use the first dataset that contains data
             const firstDataset = nonEmptyDatasets[0];
-            // console.log('firstDataset:', firstDataset);
 
-            const values = nonEmptyDatasets[0].values;
-            const dateTimes = (values.map(item => item[0])); // const dateTimes = (values.map(item => item[0])).map(formatDate); 
-            // console.log('dateTimes:', dateTimes);
+            // Extract the array of [timestamp, value] pairs
+            const values = firstDataset.values;
 
+            // Extract just the timestamps from the values array
+            const dateTimes = values.map(item => item[0]);
+            // Optionally format the dates here: .map(formatDate);
+
+            // Extract metadata from the first dataset
             const cwmsTsId = firstDataset.name;
             const unitId = firstDataset.units;
             const timeZone = firstDataset['time-zone'];
+
+            // Split the name to get components: locationId, parameterId, versionId, etc.
             const nameParts = firstDataset.name.split('.');
             const locationId = nameParts[0];
             const parameterId = nameParts[1];
             const versionId = nameParts[5];
-            // console.log("locationId: ", locationId);  // St Louis-Mississippi
-            // console.log("parameterId: ", parameterId);  // Stage
-            // console.log("versionId: ", versionId);  // lrgsShef-rev
 
-            // Second Location
-            let parameterId2, unitId2 = null;
+            // Uncomment for debugging:
+            // console.log("locationId:", locationId);      // e.g. "St Louis-Mississippi"
+            // console.log("parameterId:", parameterId);    // e.g. "Stage"
+            // console.log("versionId:", versionId);        // e.g. "lrgsShef-rev"
+
+            // Initialize variables for the second dataset's parameter and unit IDs
+            let parameterId2 = null, unitId2 = null;
+
             if (nonEmptyDatasets.length > 1) {
                 const secondDataset = nonEmptyDatasets[1];
                 // console.log('secondDataset:', secondDataset);
-                const values2 = nonEmptyDatasets[1].values;
-                const dateTimes2 = (values2.map(item => item[0])).map(formatDate); // Adjusted to use formatDate function
-                // console.log('dateTimes2:', dateTimes2);
 
+                // Extract and format timestamps from the second dataset
+                const values2 = secondDataset.values;
+                const dateTimes2 = values2.map(item => item[0]).map(formatDate); // Using formatDate function
+
+                // Extract metadata from the second dataset
                 const cwmsTsId2 = secondDataset.name;
                 unitId2 = secondDataset.units;
+
+                // Parse name components to get location and parameter IDs
                 const nameParts2 = secondDataset.name.split('.');
                 const locationId2 = nameParts2[0];
                 parameterId2 = nameParts2[1];
-                // console.log("locationId2: ", locationId2);  // St Louis-Mississippi
-                // console.log("parameterId2: ", parameterId2);  // Stage
-                // console.log("unitId2: ", unitId2);  // ft
+
+                // Uncomment for debugging:
+                // console.log("locationId2:", locationId2);   // e.g. "St Louis-Mississippi"
+                // console.log("parameterId2:", parameterId2); // e.g. "Stage"
+                // console.log("unitId2:", unitId2);           // e.g. "ft"
             }
 
             let payload = null;
@@ -1250,36 +1274,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     async function datmanLoading(datmanPayload) {
                         if (!datmanPayload) throw new Error("You must specify a payload!");
-                    
+
                         try {
                             // Indicate that the process is ongoing
                             statusDatman.innerHTML = 'Saving... <img src="images/loading4.gif" width="50" height="50" alt="Loading...">';
-                    
+
                             // Log the payload for debugging
                             console.log("datmanPayload being sent to the server: ", datmanPayload);
-                    
+
                             // Get the total number of payload items
                             const totalItems = datmanPayload.length;
                             let processedItems = 0;
-                    
+
                             // Loop through each data entry in the payload
                             for (const payloadItem of datmanPayload) {
                                 // Log each payload item for debugging
                                 console.log("Processing payload item: ", payloadItem);
-                    
+
                                 // Make an HTTP POST request to the PHP function for each payload item
                                 const response = await fetch('chart.php', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify(payloadItem), // Send the individual item as a JSON string
                                 });
-                    
+
                                 // Log the raw HTTP response for debugging
                                 console.log("HTTP Response status: ", response.status);
-                    
+
                                 // Parse the JSON response from the server
                                 const result = await response.json();
-                    
+
                                 // Check if the response is okay
                                 if (response.ok) {
                                     console.log("Data saved successfully: ", result);
@@ -1288,27 +1312,27 @@ document.addEventListener('DOMContentLoaded', function () {
                                     console.error("Error saving data on the server: ", result);
                                     throw new Error(`Server error: ${result.message}`);
                                 }
-                    
+
                                 // Increment the processed item count
                                 processedItems++;
-                    
+
                                 // Update the status with the percentage completed
                                 const percentageCompleted = Math.floor((processedItems / totalItems) * 100);
                                 statusDatman.innerHTML = `Saving... (${percentageCompleted}%) <img src="images/loading4.gif" width="50" height="50" alt="Loading...">`;
                             }
-                    
+
                             // Update the status to indicate success
                             statusDatman.innerText = "Write Datman successful!";
                             return true; // Indicate success
-                    
+
                         } catch (error) {
                             // Log any unexpected errors
                             console.error("Error while saving timeseries: ", error.message);
                             statusDatman.innerText = "Failed to write data to Datman! Please Check wm_mvs_datman Password";
                             throw error; // Re-throw the error for higher-level handling
                         }
-                    }                    
-                    
+                    }
+
                     //************************************************/
                     // CDA
                     // ***********************************************/ 
@@ -1374,14 +1398,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (!Array.isArray(payloads) || payloads.length === 0) {
                             throw new Error("You must specify a non-empty array of payloads!");
                         }
-                    
+
                         try {
                             statusBtn.innerHTML = 'Saving... <img src="images/loading4.gif" width="50" height="50" alt="Loading...">';
-                    
+
                             // Track the total number of payloads and processed payloads
                             const totalPayloads = payloads.length;
                             let processedPayloads = 0;
-                    
+
                             // Process each payload sequentially
                             for (const payload of payloads) {
                                 const response = await fetch("https://wm.mvs.ds.usace.army.mil/mvs-data/timeseries?store-rule=REPLACE%20ALL", {
@@ -1392,30 +1416,30 @@ document.addEventListener('DOMContentLoaded', function () {
                                     },
                                     body: JSON.stringify(payload),
                                 });
-                    
+
                                 if (!response.ok) {
                                     const errorText = await response.text();
                                     throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
                                 }
-                    
+
                                 console.log("Successfully wrote timeseries for payload:", payload);
-                    
+
                                 // Increment processed payload count and update status
                                 processedPayloads++;
                                 const percentageCompleted = Math.floor((processedPayloads / totalPayloads) * 100);
                                 statusBtn.innerHTML = `Saving... (${percentageCompleted}%) <img src="images/loading4.gif" width="50" height="50" alt="Loading...">`;
                             }
-                    
+
                             // Update the status to indicate success
                             statusBtn.innerText = "Write CWMS successful for all payloads!";
                             return true;
-                    
+
                         } catch (error) {
                             console.error('Error writing timeseries:', error);
                             statusBtn.innerText = "Failed to write data to CWMS!";
                             throw error;
                         }
-                    }                    
+                    }
 
                     async function deleteTS(payloads) {
                         // Log the input payloads and check if it's an array
